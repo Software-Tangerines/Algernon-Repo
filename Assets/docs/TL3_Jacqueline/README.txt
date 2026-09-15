@@ -1,1 +1,1 @@
-You have opened my readme. Why. Third sentence.
+You have opened my readme. Why.
