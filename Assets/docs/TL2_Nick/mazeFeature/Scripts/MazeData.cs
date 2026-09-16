@@ -1,6 +1,8 @@
 using UnityEngine;
+// using System.Collections.Generic;
 
 public class MazeData : MonoBehaviour {
+    [SerializeField] public MazeConfig Config;
     public int Width;
     public int Height;
 
@@ -12,14 +14,15 @@ public class MazeData : MonoBehaviour {
     public Vector2Int ExitCell;
 
     // constructor
-    public MazeData(int width, int height) {
-        Width = width;
-        Height = height;
-        cells = new Cell[width, height];
+    public MazeData(MazeConfig config) {
+        Config = config;
+        Width = Config.Width;
+        Height = Config.Height;
+        cells = new Cell[Config.Width, Config.Height];
 
         // cycles through the new 2d array, and makes a new cell with a x and y value for each
-        for (int x = 0; x < width; x++)
-            for (int y = 0; y < height; y++)
+        for (int x = 0; x < Config.Width; x++)
+            for (int y = 0; y < Config.Height; y++)
                 cells[x, y] = new Cell(new Vector2Int(x, y));
     }
 }

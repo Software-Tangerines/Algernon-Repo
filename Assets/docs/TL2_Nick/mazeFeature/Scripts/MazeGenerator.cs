@@ -1,22 +1,33 @@
 using UnityEngine;
+using System;
 
-public class MazeGenerator : MonoBehaviour
-{
-// TOP PRIORITIES
-// in mazedata
-    MazeData Generate(MazeConfig config) { get; }
-//
-    //bool IsWalkable(Vector2Int cell);
+public class MazeGenerator : MonoBehaviour {
 
-// LATER AFTER MVP
-    MazeData Current { get; }
-    // Vector2Int SpawnCell { get; }
-    // Vector2Int ExitCell { get; }
-    // Bounds WorldBounds { get; }
-    // Vector3 CellToWorld(Vector2Int cell);
-    // Vector2Int WorldToCell(Vector3 worldPosition);
-    // IReadOnlyList<Vector2Int> ReserveAnchors(AnchorKind kind, int count);
-    // bool PathExists(Vector2Int from, Vector2Int to);
-    // void Clear();
+    // MazeConfig good to go
+    // Cell should also be good
+
+    // need to keep working on MazeData and MazeGenerator
+
+    // then work on a single algorithm in MazeAlgorithm and the MazeRenderer
+    // can work on anchor points later
+
+    public MazeData Generate(MazeConfig config) {
+        var rng = new System.Random(config.Seed);
+        var maze = new MazeData(config);
+
+        // MazeAlgorithm algorithm = SelectAlgorithm(config, out bool needsRatio);
+        // algorithm.Carve(maze, rng);
+        // algorithm.PostProcess(maze, rng);
+
+        // PlaceSpawnAndExit(maze, rng);
+
+        // Current = maze;
+        // _renderer?.Build(maze);
+
+        return maze;
+    }
+
+
+    
 
 }
