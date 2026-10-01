@@ -9,6 +9,8 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D rb;
     private Vector2 movement;
 
+    private InputTransformer currentTransformer = new NormalInputTransformer();
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -30,11 +32,28 @@ public class PlayerMovement : MonoBehaviour
         if (Keyboard.current.dKey.isPressed)
             movement.x += 1;
 
+        // Space swaps between normal and inverted controls
+        if (Keyboard.current.spaceKey.wasPressedThisFrame)
+        {
+            if (currentTransformer is InvertedInputTransformer)
+            {
+                currentTransformer = new NormalInputTransformer();
+                Debug.Log("Normal Movement");
+            }
+            else
+            {
+                currentTransformer = new InvertedInputTransformer();
+                Debug.Log("Movement Inverted");
+            }
+        }
+
+        // Dynamic binding happens here
+        movement = currentTransformer.TransformMovement(movement);
+
         movement = movement.normalized;
 
         animator.SetFloat("Speed", movement.magnitude);
 
-        // Rotate the character to face movement direction
         if (movement != Vector2.zero)
         {
             float angle = Mathf.Atan2(movement.y, movement.x) * Mathf.Rad2Deg - 90f;
@@ -44,6 +63,35 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
+        rb.MovePosition(
+            rb.position + movement * moveSpeed * Time.fixedDeltaTime
+        );
+    }
+}
+
+
+public class InputTransformer
+{
+    public virtual Vector2 TransformMovement(Vector2 movement)
+    {
+        return movement;
+    }
+}
+
+
+public class NormalInputTransformer : InputTransformer
+{
+    public override Vector2 TransformMovement(Vector2 movement)
+    {
+        return movement;
+    }
+}
+
+
+public class InvertedInputTransformer : InputTransformer
+{
+    public override Vector2 TransformMovement(Vector2 movement)
+    {
+        return -movement;
     }
 }
