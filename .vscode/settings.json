@@ -67,5 +67,5 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "AlgernonGIT.slnx"
+    "dotnet.defaultSolution": "Algernon-Repo.slnx"
 }
