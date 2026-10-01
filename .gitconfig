@@ -1,0 +1,9 @@
+# .gitcofig
+[merge]
+  tool = unityyamlmerge
+
+[mergetool "unityyamlmerge"]
+  trustExitCode = false
+  cmd = '<UnityPath>/Tools/UnityYAMLMerge' \
+        merge -p "$BASE" "$REMOTE" \
+        "$LOCAL" "$MERGED"
