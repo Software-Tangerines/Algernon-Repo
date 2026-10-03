@@ -1,7 +1,9 @@
 {
     "name": "nickTL2assembly",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:27619889b8ba8c24980f49ee34dbb44a"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
