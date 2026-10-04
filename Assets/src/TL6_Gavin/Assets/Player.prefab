@@ -90,7 +90,7 @@ SpriteRenderer:
   m_Size: {x: 0.5555556, y: 0.8611111}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
 --- !u!95 &871651087681457753
@@ -234,7 +234,7 @@ Animator:
   m_GameObject: {fileID: 9080842298717201226}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: fc2ccd908f024864d9c7667724c3d67e, type: 2}
+  m_Controller: {fileID: 9100000, guid: 7edf040439231c54194611aa35a87d6f, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -255,7 +255,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 9080842298717201226}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e687d66abf66c9443a738163fcfa55af, type: 3}
+  m_Script: {fileID: 11500000, guid: b0ee71724d47ea94f8adbf54977525c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   moveSpeed: 5
