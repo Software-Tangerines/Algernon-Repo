@@ -9,7 +9,7 @@ public class ViewEffectPipeline
     public IReadOnlyList<ViewEffect> Chain => chain;
 
     //
-    public ViewEffect Find(DistortionId id)
+    public ViewEffect Find(DistortionID id)
     {
         foreach (var e in chain) if (e.Id == id) return e;
         return null;
@@ -24,7 +24,7 @@ public class ViewEffectPipeline
     }
 
     //
-    public void Remove(DistortionId id)
+    public void Remove(DistortionID id)
     {
         var e = Find(id);
         if(e == null) return;
