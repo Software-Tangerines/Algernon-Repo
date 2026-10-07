@@ -30,7 +30,7 @@ public abstract class ViewEffect
     public float Target {get; set;}
     public float Current {get; set;} // ramped toward Target by the shcedular in task 9
 
-    protected float I => UnityEngine.Mathf.clamp01(Current); // returns current, range [0,1] 
+    protected float I => UnityEngine.Mathf.Clamp01(Current); // returns current, range [0,1] 
 
 
 
