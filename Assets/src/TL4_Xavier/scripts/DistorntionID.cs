@@ -2,7 +2,7 @@
 
 public enum DistortionID
 {
-    Mirror = 0.
+    Mirror = 0,
     Rotation = 1,
     Fog = 2,
     Desaturation = 3,
