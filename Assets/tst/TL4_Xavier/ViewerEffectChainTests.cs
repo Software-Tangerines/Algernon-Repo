@@ -7,7 +7,7 @@ public class ViewEffectChainTests
     class SpyEffect : ViewEffect
     {
         public int calls;
-        public override DistortionId Id => DistortionId.Fog; // any unused id
+        public override DistortionID Id => DistortionID.Fog; // any unused id
         public override CameraState Process(CameraState s) { calls++; return base.Process(s); }
     }
 

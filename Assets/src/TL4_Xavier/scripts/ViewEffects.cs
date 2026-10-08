@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class MirrorViewEffect : ViewEffect
 {
-    public override DistortionId Id => DistortionId.Mirror;
+    public override DistortionID Id => DistortionID.Mirror;
 
     public override CameraState Process(CameraState s)
     {
@@ -17,7 +17,7 @@ public class MirrorViewEffect : ViewEffect
 
 public class RotationViewEffect : ViewEffect
 {
-    public override DistortionId Id => DistortionId.Rotation;
+    public override DistortionID Id => DistortionID.Rotation;
 
     public override CameraState Process(CameraState s)
     {
@@ -30,7 +30,7 @@ public class RotationViewEffect : ViewEffect
 
 public class DesaturationViewEffect : ViewEffect
 {
-    public override DistortionId Id => DistortionId.Desaturation;
+    public override DistortionID Id => DistortionID.Desaturation;
 
     public override CameraState Process(CameraState s)
     {
@@ -41,14 +41,14 @@ public class DesaturationViewEffect : ViewEffect
 
 public class BlackoutViewEffect : ViewEffect
 {
-    public override DistortionId Id => DistortionId.Blackout;
+    public override DistortionID Id => DistortionID.Blackout;
 
     public override CameraState Process(CameraState s)
     {
         if (I >= 0.5f)
         {
             s.blackedOut = true;
-            return s;              // HALT: Next never runs (this is what makes it CoR, not Decorator)
+            return s;              // HALT Next never runs (this is what makes it CoR, not Decorator)
         }
         return base.Process(s);
     }
