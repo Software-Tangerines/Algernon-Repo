@@ -6,6 +6,9 @@ public class PlayerMovement : MonoBehaviour
     public float moveSpeed = 5f;
     public Animator animator;
 
+    [Header("Mobile")]
+    public VirtualJoystick joystick; // optional, assign for touch controls
+
     private Rigidbody2D rb;
     private Vector2 movement;
 
@@ -20,37 +23,29 @@ public class PlayerMovement : MonoBehaviour
     {
         movement = Vector2.zero;
 
-        if (Keyboard.current.wKey.isPressed)
-            movement.y += 1;
-
-        if (Keyboard.current.sKey.isPressed)
-            movement.y -= 1;
-
-        if (Keyboard.current.aKey.isPressed)
-            movement.x -= 1;
-
-        if (Keyboard.current.dKey.isPressed)
-            movement.x += 1;
-
-        // Space swaps between normal and inverted controls
-        if (Keyboard.current.spaceKey.wasPressedThisFrame)
+        // Keyboard (null on phones, so check first)
+        var keyboard = Keyboard.current;
+        if (keyboard != null)
         {
-            if (currentTransformer is InvertedInputTransformer)
-            {
-                currentTransformer = new NormalInputTransformer();
-                Debug.Log("Normal Movement");
-            }
-            else
-            {
-                currentTransformer = new InvertedInputTransformer();
-                Debug.Log("Movement Inverted");
-            }
+            if (keyboard.wKey.isPressed) movement.y += 1;
+            if (keyboard.sKey.isPressed) movement.y -= 1;
+            if (keyboard.aKey.isPressed) movement.x -= 1;
+            if (keyboard.dKey.isPressed) movement.x += 1;
+
+            // Space swaps between normal and inverted controls
+            if (keyboard.spaceKey.wasPressedThisFrame)
+                ToggleControls();
         }
+
+        // Touch joystick
+        if (joystick != null)
+            movement += joystick.Direction;
 
         // Dynamic binding happens here
         movement = currentTransformer.TransformMovement(movement);
 
-        movement = movement.normalized;
+        // Cap at length 1 (keeps diagonals even, and lets the joystick be analog)
+        movement = Vector2.ClampMagnitude(movement, 1f);
 
         animator.SetFloat("Speed", movement.magnitude);
 
@@ -61,11 +56,24 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    // Public so a UI Button can call it from its OnClick event
+    public void ToggleControls()
+    {
+        if (currentTransformer is InvertedInputTransformer)
+        {
+            currentTransformer = new NormalInputTransformer();
+            Debug.Log("Normal Movement");
+        }
+        else
+        {
+            currentTransformer = new InvertedInputTransformer();
+            Debug.Log("Movement Inverted");
+        }
+    }
+
     void FixedUpdate()
     {
-        rb.MovePosition(
-            rb.position + movement * moveSpeed * Time.fixedDeltaTime
-        );
+        rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
     }
 }
 
