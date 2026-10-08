@@ -48,7 +48,7 @@ public class BlackoutViewEffect : ViewEffect
         if (I >= 0.5f)
         {
             s.blackedOut = true;
-            return s;              // HALT: Next never runs (this is what makes it CoR, not Decorator)
+            return s;              // HALT Next never runs (this is what makes it CoR, not Decorator)
         }
         return base.Process(s);
     }
