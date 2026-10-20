@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: e51bbe5623a75674fb689f886e9a589b
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - numberOfItemsViewer: {instanceID: 0}
+  - fpsCounter: {instanceID: 0}
+  - item: {fileID: 9080842298717201226, guid: eee0398ae92cf5047ac42224f6344aeb, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
