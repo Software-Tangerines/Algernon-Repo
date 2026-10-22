@@ -119,3 +119,8 @@ InitTestScene*.unity*
 **/[Uu]ser[Ss]ettings/
 *.csproj
 *.sln
+
+# Unity-generated metas for IDE project files
+*.csproj.meta
+*.sln.meta
+*.slnx.meta
