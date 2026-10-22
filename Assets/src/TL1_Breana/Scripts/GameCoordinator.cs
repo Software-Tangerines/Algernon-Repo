@@ -20,9 +20,9 @@ public class GameCoordinator : MonoBehaviour, ISessionCoordinator
     // ---------- Events ----------
 
     //Other features subscribe; fired later with e.g. OnLevelStarted?.Invoke();
-    public event Action OnLevelStarted;
-    public event Action OnLevelEnded;
-    public event Action OnRunEnded;
+    public event Action<LevelConfig> OnLevelStarted;
+    public event Action<LevelResult> OnLevelEnded;
+    public event Action<RunStatistics> OnRunEnded;
 
     // ---------- Unity lifecycle ----------
 

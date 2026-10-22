@@ -15,7 +15,7 @@ public interface ISessionCoordinator
     RunStatistics Statistics { get; }
 
     // Events
-    event Action OnLevelStarted;
-    event Action OnLevelEnded;
-    event Action OnRunEnded;
+    event Action<LevelConfig> OnLevelStarted;
+    event Action<LevelResult> OnLevelEnded;
+    event Action<RunStatistics> OnRunEnded;
 }
