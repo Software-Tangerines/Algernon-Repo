@@ -1,41 +1,25 @@
-using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.TestTools;
 
+// Calls Evaluate through a LevelRule reference (Risk R6): if virtual/override is removed,
+// the base method runs instead and these tests go red before the oral exam does.
 public class BindingTests
 {
-    // A Test behaves as an ordinary method
     [Test]
-    public void  BaseRef_ToSubclass_UsesOverride()
+    public void BaseRef_ToSubclass_UsesOverride()
     {
-        LevelRule baseline = new LevelRule();
-        LevelRule actual = new PuzzleCompletionRule();
-        string a = baseline.Evaluate();
-        string b = actual.Evaluate();
-        
-        Assert.AreNotEqual(a, b); // assert: DIFFERENT
-    }
-    [Test]
-    public void BaseRef_ToBase_NoBindingChange()
-    {
-        LevelRule baseline = new LevelRule();
-        LevelRule actual = new LevelRule();
+        LevelRule rule = new PuzzleCompletionRule();
+        var snapshot = new SessionSnapshot(Vector2Int.zero, 10f, true, false);
 
-        //This isn't equal so it'll return a failed test
-        //Assert.AreNotEqual(baseline.Evaluate(), baseline.Evaluate());
+        Assert.AreEqual(RuleVerdict.Win, rule.Evaluate(snapshot));
     }
-    // A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use
-    // `yield return null;` to skip a frame.
-    //[UnityTest]
-    //public IEnumerator BindingTestsWithEnumeratorPasses()
-    //{
-        //Item baseline = new Item(); 
-        //Item actual = new Item();
-        //Assert.AreNotEqual(baseline.GetItemId(), actual.GetItemId());
-        //Assert.AreEqual(baseline.GetItemId(), actual.GetItemId());
-        // Run 1: RED - same output, nothing to bind to
-        // Run 2: change to Assert.AreEqual -> GREEN -> commit
-        //yield return null;
-    //}
+
+    [Test]
+    public void BaseRef_ToSubclass_ObjectiveIncomplete_StaysInProgress()
+    {
+        LevelRule rule = new PuzzleCompletionRule();
+        var snapshot = new SessionSnapshot(Vector2Int.zero, 10f, false, false);
+
+        Assert.AreEqual(RuleVerdict.InProgress, rule.Evaluate(snapshot));
+    }
 }
