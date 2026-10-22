@@ -308,10 +308,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3670314923892022449}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8d9807dbee97b1d47bb716632d0ee3bd, type: 3}
+  m_Script: {fileID: 11500000, guid: 588f292da88b382419fc33068339c4c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuController
-  sessionMachine: {fileID: 0}
 --- !u!1 &6460523193209506103
 GameObject:
   m_ObjectHideFlags: 0

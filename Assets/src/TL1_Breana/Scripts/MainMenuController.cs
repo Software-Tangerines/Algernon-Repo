@@ -3,10 +3,9 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuController : MonoBehaviour
 {
-    [SerializeField] private SessionMachine sessionMachine;
     public void OnPlayButtonPressed()
     {
-        sessionMachine.TransitionTo(SessionState.PlayingState);
+        GameCoordinator.Instance.StartRun(0);
         SceneManager.LoadScene("MVP", LoadSceneMode.Single);
     }
 }

@@ -13,7 +13,7 @@ public class MenuState : GameState
         if (Keyboard.current.spaceKey.wasPressedThisFrame)
         {
             Debug.Log("Start pressed");
-            GameManager.Instance.StartGame();
+            GameCoordinator.Instance.StartGame();
         }
     }
 

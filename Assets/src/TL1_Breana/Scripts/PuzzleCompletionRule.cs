@@ -1,5 +1,3 @@
-using System.Data;
-using UnityEditor;
 using UnityEngine;
 
 public class PuzzleCompletionRule : LevelRule

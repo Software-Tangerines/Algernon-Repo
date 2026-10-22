@@ -1,9 +1,13 @@
-using UnityEngine;
 
 public enum SessionState
 {
-    MenuState,
-    PlayingState,
-    PausedState,
-    GameOverState
+    Boot,
+    Menu,
+    Playing,
+    Paused,
+    LevelLoading,
+    Won,
+    Lost,
+    RunComplete,
+ 
 }
