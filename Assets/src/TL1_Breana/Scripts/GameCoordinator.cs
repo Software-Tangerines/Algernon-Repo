@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -66,7 +67,54 @@ public class GameCoordinator : MonoBehaviour, ISessionCoordinator
     // Update is called once per frame
     private void Update()
     {
+        // 1. Only run while Playing (this is also what freezes everything while Paused)
+        if (State != SessionState.Playing)
+        {
+            return;
+        }
+        // 2. Count the timer down by this frame's duration
+        float deltaTime = Time.deltaTime;
+        timer.Advance(deltaTime);
+        // 3. Add the same duration to the run's elapsed time
+        statistics.ElapsedTime += deltaTime;
+        // 4. Read the player's current cell into a local variable
+        Vector2Int playerCell = player.CurrentCell;
+        // 5. Push that cell to the cheese system and the hazard system
+        puzzles.NotifyPlayerCell(playerCell);
+        hazards.Tick(deltaTime, playerCell);
+        // 6. Build this frame's SessionSnapshot
+        SessionSnapshot snapshot = new SessionSnapshot(
+            playerCell,
+            timer.RemainingSeconds,
+            puzzles.AllObjectivesComplete,
+            false
+        );
+        // 7. Ask each rule in order; the first verdict that isn't InProgress ends the level
+        foreach (LevelRule rule in activeRules)
+        {
+            RuleVerdict verdict = rule.Evaluate(snapshot);
+            if(verdict != RuleVerdict.InProgress)
+            {
+                EndLevel(verdict);
+                return;
+            }
+        }
+        // 8. Tell the HUD how much time is left
+        hud.SetTimer(timer.RemainingSeconds);
+    }
 
+    // Ends the level with the rules' verdict: change state, stop the level, tell listeners.
+    private void EndLevel(RuleVerdict verdict)
+    {
+        // 1. Win -> Won, Lose -> Lost
+        bool won = verdict == RuleVerdict.Win;
+        // 2. Ask the session machine for that transition
+        sessionMachine.TransitionTo(won ? SessionState.Won : SessionState.Lost);
+        // 3. Stop hazards and the player's input
+        hazards.SetActive(false);
+        player.EnableInput(false);
+        // 4. Fire OnLevelEnded with the matching LevelResult
+        OnLevelEnded?.Invoke(won ? LevelResult.Won : LevelResult.Lost);
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
