@@ -2,17 +2,30 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+F5 DistortionScheduler: decides WHICH effects are in the pipeline and HOW STRONG they are over time.
+
+- LoadSchedule: a level's rows ("at 30 s, Desaturation -> 0.5") are queued by start time.
+- Tick (every frame): advances the clock, applies rows that are now due, and ramps each effect's
+  Current toward its Target linearly over RampSeconds.
+- Apply / Remove / Clear: the same operations F1 can trigger directly through ViewDirector.
+
+Plain C# class owned by ViewDirector. Other features should call ViewDirector, not this.
+*/
 public class DistortionScheduler
 {
+    // (id, new target). Raised once per change, never once per ramp frame. 0 = being removed.
     public event Action<DistortionID, float> DistortionChanged;
 
+    // Seconds since LoadSchedule (scaled time, so it stops while paused).
     public float Clock { get; private set; }
+    // How long an effect takes to go from 0 to 1 (or 1 to 0). 0 = instant.
     public float RampSeconds { get; set; }
 
     private readonly ViewEffectPipeline pipeline;
-    private readonly List<ScheduleEntry> queue = new List<ScheduleEntry>();
-    private int nextEntry;                                   
-    private readonly bool[] removing = new bool[6];          
+    private readonly List<ScheduleEntry> queue = new List<ScheduleEntry>();  // this level's rows, sorted by startTime
+    private int nextEntry;                                   // index of the first row not applied yet
+    private readonly bool[] removing = new bool[6];          // per DistortionID: ramping down to be removed?
 
     public DistortionScheduler(ViewEffectPipeline pipeline, float rampSeconds = 1f)
     {
@@ -47,7 +60,7 @@ public class DistortionScheduler
         }
 
         // Ramp each effect's Current toward its Target.
-        //    Backwards loop because finished removals 
+        // Loop backwards because an effect that finished ramping down is removed from the list mid-loop.
         float step = RampSeconds > 0f ? dt / RampSeconds : float.PositiveInfinity;
         var chain = pipeline.Chain;
         for (int i = chain.Count - 1; i >= 0; i--)
@@ -63,8 +76,11 @@ public class DistortionScheduler
         }
     }
 
-    
+    // ---- Direct commands ------------------------------------------------
 
+    // Starts a distortion or changes its target. New ids go on the END of the chain and ramp up from 0;
+    // an id already in the chain keeps its position and just gets the new target.
+    // Rejects NaN/infinite intensity and undefined ids (error), and Blur (warning).
     // Returns false if the input was rejected.
     public bool Apply(DistortionID id, float intensity)
     {
@@ -91,7 +107,7 @@ public class DistortionScheduler
             pipeline.Add(fx);           // new id goes to the end of the chain
         }
 
-        removing[(int)id] = false;      
+        removing[(int)id] = false;      // re-applying cancels a pending removal
 
         if (isNew || !Mathf.Approximately(fx.Target, target))
         {
@@ -101,7 +117,7 @@ public class DistortionScheduler
         return true;
     }
 
-    // Ramps to 0 over RampSeconds
+    // Ramps to 0 over RampSeconds, then Tick removes it. Not in the chain = no-op, no event.
     public void Remove(DistortionID id)
     {
         var fx = pipeline.Find(id);
@@ -111,7 +127,7 @@ public class DistortionScheduler
         DistortionChanged?.Invoke(id, 0f);
     }
 
-    // Empties the chain immediately
+    // Empties the chain immediately (no ramp). Raises DistortionChanged(id, 0) for each removed effect.
     public void Clear()
     {
         var chain = pipeline.Chain;
@@ -125,6 +141,8 @@ public class DistortionScheduler
     }
 
     // ---- Factory --------------------------------------------------------
+
+    // Makes the effect object for an id. Add new effect classes here.
 
     private static ViewEffect CreateEffect(DistortionID id)
     {

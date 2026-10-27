@@ -1,44 +1,45 @@
-/* 
-GENERAL ABOUT
-
-Chain of responsibility handler. the pipline only ever holds ViewAEffect 
-references, so which process() runs is decided by dynamic binding 
-
-Dynamic-biding demo: remove 'virtual' here (and change 'override' to 'new' in the subclasses so it compiles)
-Every call then binds to THIS method
-which only fowards; the whole chain becomes a pass-through.
-*/
-
 /*
-This is the base class for every distortion(mirror, Rotation, Blackout, ect...) its abstract so you can never write new ViewEffect() only MirrorViewEffect() and the effects. the pipeline stores everything as viewEffect references which is what lets it treat all the effects the same way 
+F5 ViewEffect: abstract base class for every distortion (Chain of Responsibility handler).
+
+Each effect is one link in a chain, like a linked list:
+    Mirror -> Rotation -> Blackout -> null
+ViewEffectPipeline.Run() hands a CameraState to the first link. Each link changes the state
+and calls base.Process(s), which forwards it to Next. The last link returns the final state.
+A link may also STOP the chain by returning without calling base (BlackoutViewEffect does this).
+That stopping is why this is Chain of Responsibility and not Decorator.
+
+Plain C# class on purpose, NOT a MonoBehaviour: effects are created with `new`, can be chained
+in any order at runtime, and can be unit tested without a scene.
+
+DYNAMIC BINDING (oral exam demo):
+The pipeline only holds ViewEffect references, so which Process() runs is decided at runtime
+by the object's real type. Remove `virtual` below (and change `override` to `new` in the subclasses
+so it still compiles) and every call binds to THIS method, which only forwards: the whole chain
+becomes a pass-through and all distortions vanish, while game logic is unaffected.
+
+To add a new effect: subclass this, return its DistortionID from Id, override Process
+(change the state, then `return base.Process(s);`), and add it to DistortionScheduler.CreateEffect.
 */
 public abstract class ViewEffect
 {
+    // The next link in the chain (null = last link). Don't set this yourself;
+    // ViewEffectPipeline.Relink() rewires it whenever an effect is added or removed.
+    public ViewEffect Next { get; set; }
 
-    /*
-    This is the "chain" in the chain of respobsibilty gof im using. each effect holds a reference to the effect after it, sorta like a linked list. the last effect in the chain has NEXT = null. I dont set this viewEffectPipeline.relink() wires it up whenver an efect is added or removed
+    // Which distortion this is. Abstract, so every subclass is forced to say.
+    // The pipeline uses it in Find() so applying Mirror twice updates the existing effect instead of adding a second.
+    public abstract DistortionID Id { get; }
 
-    Each subclass has to say which distortion it is, for example mirrorViewEffect will return DistortionID.Mirror, since its abstract. the compiler force the subclasses to fill it in. the pipeline uses it in Find() so that applyDistorition(mirror... ) can check whether a mirror effect is already being used in the chain
-    */
-    public ViewEffect Next {get; set;}
-    public abstract DistortionID Id {get;}
+    // Ramping: Target is the intensity asked for (0..1). Current is where the effect is right now.
+    // DistortionScheduler.Tick moves Current toward Target a bit each frame, so effects fade in/out
+    // instead of snapping. Effects read Current (through I), never Target.
+    public float Target { get; set; }
+    public float Current { get; set; }
 
+    // Current intensity, clamped to [0, 1]. Use this inside Process.
+    protected float I => UnityEngine.Mathf.Clamp01(Current);
 
-    /*
-    Target and current are for ramping up the distortion effects that feature 1 asks for . current is where the effect level is at currently and target is the target level  the range is from 0-1 ie(0<=range<1) like 0.8  the scheduler will mover currents value towards targets a little over each frame instead of snapping it on immeditratly 
-    */
-    public float Target {get; set;}
-    public float Current {get; set;} // ramped toward Target by the shcedular in task 9
-
-    protected float I => UnityEngine.Mathf.Clamp01(Current); // returns current, range [0,1] 
-
-
-
-    /*
-    this method is the core of the class. the base version passes the state along, uf theres is an effect the is passes that state to this method and if its the end of the chain it returns the state as a final result
-
-    subclasses override it with the same pattern each time.
-    */
+    // Default behaviour: pass the state on unchanged, or return it if this is the last link.
     public virtual CameraState Process(CameraState state)
     {
         return Next != null ? Next.Process(state) : state;
