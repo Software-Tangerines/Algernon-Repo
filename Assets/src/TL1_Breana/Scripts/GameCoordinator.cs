@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameCoordinator : MonoBehaviour, ISessionCoordinator
+public class GameCoordinator : MonoBehaviour
 {
     public static GameCoordinator Instance { get; private set; }
     private const string GameplayScene = "MVP";
@@ -38,9 +37,9 @@ public class GameCoordinator : MonoBehaviour, ISessionCoordinator
     // ---------- Events ----------
 
     //Other features subscribe; fired later with e.g. OnLevelStarted?.Invoke();
-    public event Action<LevelConfig> OnLevelStarted;
-    public event Action<LevelResult> OnLevelEnded;
-    public event Action<RunStatistics> OnRunEnded;
+    public event Action OnLevelStarted;
+    public event Action OnLevelEnded;
+    public event Action OnRunEnded;
 
     // ---------- Unity lifecycle ----------
 
@@ -114,7 +113,7 @@ public class GameCoordinator : MonoBehaviour, ISessionCoordinator
         hazards.SetActive(false);
         player.EnableInput(false);
         // 4. Fire OnLevelEnded with the matching LevelResult
-        OnLevelEnded?.Invoke(won ? LevelResult.Won : LevelResult.Lost);
+        OnLevelStarted?.Invoke();
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -181,7 +180,7 @@ public class GameCoordinator : MonoBehaviour, ISessionCoordinator
         player.EnableInput(true);
 
         sessionMachine.TransitionTo(SessionState.Playing);
-        OnLevelStarted?.Invoke(currentLevel);
+        OnLevelStarted?.Invoke();
     }
 
     // Cheese levels: lose rules first so a loss wins a same-frame tie, then the exit.
