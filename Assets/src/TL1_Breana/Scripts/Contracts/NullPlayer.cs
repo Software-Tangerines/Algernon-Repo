@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class NullPlayer : IPlayerCharacter
 {
+    public bool IsAlive => true;
     public Vector2Int CurrentCell { get; private set; }
 
     public void SpawnAt(Vector3 worldPosition)

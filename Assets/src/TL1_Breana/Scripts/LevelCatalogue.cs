@@ -10,7 +10,7 @@ public class LevelCatalogue
     public LevelCatalogue() : this(new[]
     {
         //              width height hazards  distortions                                      time  cheese
-        new LevelConfig(9,    9,     0.1f,    null,                                            90f,  3),
+        new LevelConfig(9,    9,     0.1f,    null,                                            5f,  3),
         new LevelConfig(13,   13,    0.2f,    null,                                            120f, 5),
         new LevelConfig(17,   17,    0.3f,    new[] { DistortionType.MirroredControls },       150f, 7),
     })
