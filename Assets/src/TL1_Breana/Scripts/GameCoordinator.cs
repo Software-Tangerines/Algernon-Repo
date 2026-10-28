@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class GameCoordinator : MonoBehaviour
 {
     public static GameCoordinator Instance { get; private set; }
     private const string GameplayScene = "MVP";
+    private const string MenuScene = "Menu";
 
     //The coordinator owns the machine and its helpers (composition, per your class diagram)
     private readonly SessionMachine sessionMachine = new SessionMachine();
@@ -66,6 +68,9 @@ public class GameCoordinator : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+        // Runs before the guard so the keys also work in Lost/Won
+        HandleDebugKeys();
+
         // 1. Only run while Playing (this is also what freezes everything while Paused)
         if (State != SessionState.Playing)
         {
@@ -86,13 +91,13 @@ public class GameCoordinator : MonoBehaviour
             playerCell,
             timer.RemainingSeconds,
             puzzles.AllObjectivesComplete,
-            false
+            !player.IsAlive   
         );
         // 7. Ask each rule in order; the first verdict that isn't InProgress ends the level
         foreach (LevelRule rule in activeRules)
         {
             RuleVerdict verdict = rule.Evaluate(snapshot);
-            if(verdict != RuleVerdict.InProgress)
+            if (verdict != RuleVerdict.InProgress)
             {
                 EndLevel(verdict);
                 return;
@@ -113,7 +118,7 @@ public class GameCoordinator : MonoBehaviour
         hazards.SetActive(false);
         player.EnableInput(false);
         // 4. Fire OnLevelEnded with the matching LevelResult
-        OnLevelStarted?.Invoke();
+        OnLevelEnded?.Invoke();
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -145,9 +150,17 @@ public class GameCoordinator : MonoBehaviour
         SceneManager.LoadScene(GameplayScene);
     }
 
-    //Stubs: filled in Week 2
+    // Reloads the current level. BeginLevel resets the timer, rules and features once the scene has loaded.
     public void RestartLevel()
     {
+        if (!sessionMachine.TransitionTo(SessionState.LevelLoading))
+        {
+            Debug.LogWarning($"RestartLevel: can't restart from {State}");
+            return;
+        }
+        hazards.SetActive(false);
+        player.EnableInput(false);
+        SceneManager.LoadScene(GameplayScene);
     }
 
     public void AdvanceLevel()
@@ -158,8 +171,35 @@ public class GameCoordinator : MonoBehaviour
     {
     }
 
+    // Ends the run from any state except Boot and returns to the menu.
     public void AbortRun()
     {
+        if (State == SessionState.Boot || (!sessionMachine.TransitionTo(SessionState.Menu)))
+        {
+            Debug.LogWarning($"AbortRun: nothing to abort from {State}");
+            return;
+        }
+        hazards.SetActive(false);
+        player.EnableInput(false);
+        OnRunEnded?.Invoke();
+        SceneManager.LoadScene(MenuScene);
+    }
+
+    // TEMPORARY: keyboard shortcuts until TL3's death screen buttons exist (IHud.OnRetryPressed / OnQuitPressed)
+    private void HandleDebugKeys()
+    {
+        if (Keyboard.current == null)
+        {
+            return;
+        }
+        if (Keyboard.current.rKey.wasPressedThisFrame)
+        {
+            RestartLevel();
+        }
+        if (Keyboard.current.mKey.wasPressedThisFrame)
+        {
+            AbortRun();
+        }
     }
 
     // ---------- Level setup ----------
