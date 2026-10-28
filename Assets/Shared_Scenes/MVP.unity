@@ -13342,6 +13342,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 44534126039377876, guid: ad78a9054b6f8614f9efff9f8d2b8409, type: 3}
+      propertyPath: joystick
+      value: 
+      objectReference: {fileID: 475318112}
     - target: {fileID: 1829090107210581046, guid: ad78a9054b6f8614f9efff9f8d2b8409, type: 3}
       propertyPath: m_Name
       value: PlayerWithCamera

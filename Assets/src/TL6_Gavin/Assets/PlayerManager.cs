@@ -2,9 +2,15 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
-public class PlayerManager : MonoBehaviour
+public class PlayerManager : MonoBehaviour, IPlayerCharacter
 {
     public PlayerData data = new PlayerData();
+
+    public bool IsAlive => data.currentState != PlayerState.Dead;
+    public Vector2Int CurrentCell => Vector2Int.RoundToInt(transform.position);
+    public void SpawnAt(Vector3 worldPosition) => transform.position = worldPosition;
+    public void Kill(DeathCause cause) => data.currentState = PlayerState.Dead;
+    public void EnableInput(bool enabled) => SetFrozen(!enabled);
 
     private PlayerMemento savedState;
 
@@ -79,7 +85,7 @@ public void TakeDamage(int amount)
     {
         data.currentState = PlayerState.Dead;
         Debug.Log("Player died!");
-        RestartScene();
+        // RestartScene();
     }
 }
 
