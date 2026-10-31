@@ -14,6 +14,9 @@ public class PlayerManager : MonoBehaviour, IPlayerCharacter
 
     private PlayerMemento savedState;
 
+    [Header("Health UI")]
+    public HealthUI healthUI;
+
     
 
 private void Update()
@@ -28,21 +31,24 @@ private void Update()
         LoadState();
 
     if (Keyboard.current.hKey.wasPressedThisFrame)
-        TakeDamage(25);
+        TakeDamage(10);
 
     if (Keyboard.current.fKey.wasPressedThisFrame)
         SetFrozen(data.currentState != PlayerState.Frozen);
 
     if (Keyboard.current.jKey.wasPressedThisFrame)
-        Heal(25);
+        Heal(10);
 }
 
 
 
     private void Awake()
-    {
-        data.position = transform.position;
-    }
+{
+    data.position = transform.position;
+
+    if (healthUI != null)
+        healthUI.UpdateHealth(data.health);
+}
 
     public void SaveState()
     {
@@ -50,23 +56,33 @@ private void Update()
 
         savedState = new PlayerMemento(data);
 
+        if (healthUI != null)
+        healthUI.UpdateHealth(data.health);
+
         Debug.Log("Player state saved!");
     }
 
     public void LoadState()
+{
+    if (savedState == null)
     {
-        if (savedState == null)
-        {
-            Debug.LogWarning("No saved state exists!");
-            return;
-        }
-
-        data = savedState.GetSavedData();
-
-        transform.position = data.position;
-
-        Debug.Log("Player state restored!");
+        Debug.LogWarning("No saved state exists!");
+        return;
     }
+
+    data = savedState.GetSavedData();
+
+    transform.position = data.position;
+
+    // Restore health display
+    if (healthUI != null)
+        healthUI.UpdateHealth(data.health);
+
+    // Restore player state
+    Debug.Log("Player state restored!");
+    Debug.Log("Health: " + data.health);
+    Debug.Log("State: " + data.currentState);
+}
 
  
 public void TakeDamage(int amount)
@@ -78,6 +94,9 @@ public void TakeDamage(int amount)
         return;
 
     data.health = Mathf.Max(0, data.health - amount);
+
+    if (healthUI != null)
+        healthUI.UpdateHealth(data.health);
 
     Debug.Log("Player health: " + data.health);
 
@@ -98,6 +117,9 @@ public void Heal(int amount)
         return;
 
     data.health = Mathf.Min(data.maxHealth, data.health + amount);
+
+    if (healthUI != null)
+        healthUI.UpdateHealth(data.health);
 
     Debug.Log("Player healed. Health: " + data.health);
 }
