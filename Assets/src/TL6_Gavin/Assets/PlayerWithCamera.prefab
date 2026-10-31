@@ -10,7 +10,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3276771666344902333, guid: 88a065add59a70a49b8996339b6f607e, type: 3}
       propertyPath: m_Name
-      value: Player Variant
+      value: PlayerWithCamera
+      objectReference: {fileID: 0}
+    - target: {fileID: 4000403775952332075, guid: 88a065add59a70a49b8996339b6f607e, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4000403775952332075, guid: 88a065add59a70a49b8996339b6f607e, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7660204305039468013, guid: 88a065add59a70a49b8996339b6f607e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -52,6 +60,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8221278661419522730, guid: 88a065add59a70a49b8996339b6f607e, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -7982862913586005372, guid: f39fc102dca82c3449b9c7628fee2971, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

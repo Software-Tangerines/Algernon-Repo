@@ -32,6 +32,7 @@ Mirrored CONTROLS belong to F7 (TL6), not here.
 
 Not done yet: fog + vision radius (task 7), minimap (task 8), Shake, CaptureState/RestoreState (task 10).
 */
+[DefaultExecutionOrder(100)] // run after TL6 calls camerea lock rotationundone
 [RequireComponent(typeof(Camera))]
 public class ViewDirector : MonoBehaviour, IViewDirector
 {
@@ -75,6 +76,13 @@ public class ViewDirector : MonoBehaviour, IViewDirector
         // Start the rig where the camera already is, so nothing jumps before F1 calls FrameMaze.
         rig = new CameraRig(cam.transform.position, cam.orthographicSize);
         rig.Framed += b => Framed?.Invoke(b);
+
+        //if the camera sits unnder player tl6 prefab it will follow old parent until f1 calls
+        Transform oldParent = transform.parent;
+        if(oldParent != null){
+            transform.SetParent(null, worldPositionStays: true);
+            rig.Bind(oldParent);
+        }
 
         pipeline = new ViewEffectPipeline();
         scheduler = new DistortionScheduler(pipeline, rampSeconds);
