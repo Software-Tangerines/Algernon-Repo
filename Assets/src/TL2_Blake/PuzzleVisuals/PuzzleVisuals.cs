@@ -33,38 +33,34 @@ public class PuzzleVisual : MonoBehaviour
 
     public void Refresh()
     {
-        if (element == null)
-            return;
+        if (element == null) return;
 
-        // A collected key disappears.
-        if (element is KeyElement)
+        if (element is KeyElement || element is CheeseElement)
         {
             spriteRenderer.enabled = !element.IsResolved;
             return;
         }
 
-        // Use a different sprite when resolved, if provided.
         if (resolvedSprite != null)
         {
-            spriteRenderer.sprite = element.IsResolved
-                ? resolvedSprite
-                : originalSprite;
+            spriteRenderer.sprite =
+                element.IsResolved ? resolvedSprite : originalSprite;
         }
 
-        // A door physically blocks movement while closed.
         if (element is DoorElement door)
         {
+            spriteRenderer.enabled = !door.IsOpen;
+
             if (blockingCollider != null)
                 blockingCollider.enabled = !door.IsOpen;
         }
 
-        // A disabled hazard is still visible,
-        // but its color indicates that it is safe.
         if (element is HazardElement hazard)
         {
-            spriteRenderer.sprite = element.IsResolved
-                ? resolvedSprite
-                : originalSprite;
+            if (blockingCollider != null)
+                blockingCollider.enabled = !hazard.IsDisabled;
+
+            spriteRenderer.enabled = !hazard.IsDisabled;
         }
     }
 }

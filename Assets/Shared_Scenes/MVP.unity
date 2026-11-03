@@ -13351,6 +13351,10 @@ PrefabInstance:
       propertyPath: joystick
       value: 
       objectReference: {fileID: 475318112}
+    - target: {fileID: 418408596981283538, guid: ad78a9054b6f8614f9efff9f8d2b8409, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1829090107210581046, guid: ad78a9054b6f8614f9efff9f8d2b8409, type: 3}
       propertyPath: m_Name
       value: PlayerWithCamera
@@ -13819,8 +13823,10 @@ MonoBehaviour:
   doorPrefab: {fileID: 7432242481699995911, guid: 2c9d2f2cbb46b4df48e3edaba864b467, type: 3}
   hazardPrefab: {fileID: 6761788798548937664, guid: 55d520c6d460845909f047dbfcab4092, type: 3}
   exitPrefab: {fileID: 6202508119964396681, guid: ffd5bb075ea574f16b12a2684c802613, type: 3}
+  cheesePrefab: {fileID: 7660652673648722609, guid: d82cd4aee79354694b6aa8363a9495e6, type: 3}
   hazardDamage: 10
   damageInterval: 0.5
+  cheeseHealAmount: 10
 --- !u!4 &1770252526
 Transform:
   m_ObjectHideFlags: 0

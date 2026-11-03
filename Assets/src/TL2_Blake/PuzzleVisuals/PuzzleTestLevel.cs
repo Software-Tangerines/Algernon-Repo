@@ -17,10 +17,14 @@ public class PuzzleTestLevel : MonoBehaviour
     [SerializeField] private PuzzleVisual doorPrefab;
     [SerializeField] private PuzzleVisual hazardPrefab;
     [SerializeField] private PuzzleVisual exitPrefab;
+    [SerializeField] private PuzzleVisual cheesePrefab;
 
     [Header("Hazard Settings")]
-    [SerializeField] private int hazardDamage = 1;
+    [SerializeField] private int hazardDamage = 10;
     [SerializeField] private float damageInterval = 0.5f;
+
+    [Header("Cheese Settings")]
+    [SerializeField] private int cheeseHealAmount = 20;
 
     private PuzzleSystem puzzleSystem;
 
@@ -30,12 +34,14 @@ public class PuzzleTestLevel : MonoBehaviour
     private DoorElement door;
     private HazardElement hazard;
     private ExitElement exit;
+    private CheeseElement cheese;
 
     private readonly Dictionary<PuzzleElement, PuzzleVisual>
         visuals = new Dictionary<PuzzleElement, PuzzleVisual>();
 
     private Vector2Int hazardCell;
     private float nextDamageTime;
+    private bool cheeseWasCollected = false;
 
     private void Start()
     {
@@ -50,9 +56,10 @@ public class PuzzleTestLevel : MonoBehaviour
 
         if (platePrefab == null || keyPrefab == null ||
             leverPrefab == null || doorPrefab == null ||
-            hazardPrefab == null || exitPrefab == null)
+            hazardPrefab == null || exitPrefab == null || 
+            cheesePrefab == null)
         {
-            Debug.LogError("Assign all six puzzle prefabs.");
+            Debug.LogError("Assign all seven puzzle prefabs.");
             enabled = false;
             return;
         }
@@ -72,6 +79,10 @@ public class PuzzleTestLevel : MonoBehaviour
         lever = new LeverElement(
             new Vector2Int(6, 2));
 
+        cheese = new CheeseElement(
+        new Vector2Int(3, 1),
+        cheeseHealAmount);
+
         // Dependent elements.
         door = new DoorElement(plate, key, lever);
         hazard = new HazardElement(key, lever);
@@ -86,7 +97,8 @@ public class PuzzleTestLevel : MonoBehaviour
             key,
             lever,
             door,
-            hazard
+            hazard,
+            cheese
         };
 
         exit = new ExitElement(objectives);
@@ -97,7 +109,8 @@ public class PuzzleTestLevel : MonoBehaviour
             key,
             lever,
             door,
-            hazard
+            hazard,
+            cheese
         };
 
         puzzleSystem = new PuzzleSystem(elements, exit);
@@ -111,6 +124,7 @@ public class PuzzleTestLevel : MonoBehaviour
         Spawn(platePrefab, plate, plate.Cell, "Plate");
         Spawn(keyPrefab, key, key.Cell, "Key");
         Spawn(leverPrefab, lever, lever.Cell, "Lever");
+        Spawn(cheesePrefab, cheese, cheese.Cell, "Cheese");
 
         Spawn(doorPrefab, door,
             new Vector2Int(3, 3), "Door");
@@ -174,6 +188,12 @@ public class PuzzleTestLevel : MonoBehaviour
 
         puzzleSystem.Tick(context);
 
+        if (cheese.IsResolved && !cheeseWasCollected)
+        {
+            playerManager.Heal(cheeseHealAmount);
+            cheeseWasCollected = true;
+        }
+
         // Refresh all sprites and colliders.
         foreach (PuzzleVisual visual in visuals.Values)
         {
@@ -203,6 +223,7 @@ public class PuzzleTestLevel : MonoBehaviour
 
     public void ResetLevelPuzzles()
     {
+        cheeseWasCollected = false;
         puzzleSystem.ResetPuzzles();
         nextDamageTime = 0f;
 
