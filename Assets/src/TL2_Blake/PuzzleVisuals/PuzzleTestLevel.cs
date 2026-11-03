@@ -1,15 +1,26 @@
-
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 using UnityEngine.InputSystem;
 
 public class PuzzleTestLevel : MonoBehaviour
 {
-    [Header("References")]
+    [Header("Scene References")]
+    [SerializeField] private Tilemap tilemap;
     [SerializeField] private Transform player;
+    [SerializeField] private PlayerManager playerManager;
 
-    [Header("Grid")]
-    [SerializeField] private float cellSize = 1f;
+    [Header("Puzzle Prefabs")]
+    [SerializeField] private PuzzleVisual platePrefab;
+    [SerializeField] private PuzzleVisual keyPrefab;
+    [SerializeField] private PuzzleVisual leverPrefab;
+    [SerializeField] private PuzzleVisual doorPrefab;
+    [SerializeField] private PuzzleVisual hazardPrefab;
+    [SerializeField] private PuzzleVisual exitPrefab;
+
+    [Header("Hazard Settings")]
+    [SerializeField] private int hazardDamage = 1;
+    [SerializeField] private float damageInterval = 0.5f;
 
     private PuzzleSystem puzzleSystem;
 
@@ -20,33 +31,55 @@ public class PuzzleTestLevel : MonoBehaviour
     private HazardElement hazard;
     private ExitElement exit;
 
-    [SerializeField] private PuzzleVisual visualPrefab;
-    private readonly Dictionary<PuzzleElement, PuzzleVisual> visuals = new Dictionary<PuzzleElement, PuzzleVisual>();
+    private readonly Dictionary<PuzzleElement, PuzzleVisual>
+        visuals = new Dictionary<PuzzleElement, PuzzleVisual>();
 
-    private Sprite squareSprite;
+    private Vector2Int hazardCell;
+    private float nextDamageTime;
 
     private void Start()
     {
-        if (player == null)
+        if (tilemap == null || player == null ||
+            playerManager == null)
         {
             Debug.LogError(
-                "PuzzleTestLevel: Assign the player in the Inspector.");
+                "Assign Tilemap, Player and PlayerManager.");
             enabled = false;
             return;
         }
 
-        // 1. Create puzzle logic at hard-coded grid coordinates.
-        plate = new PressurePlateElement(new Vector2Int(2, 2));
-        key = new KeyElement(new Vector2Int(4, 2));
-        lever = new LeverElement(new Vector2Int(6, 2));
+        if (platePrefab == null || keyPrefab == null ||
+            leverPrefab == null || doorPrefab == null ||
+            hazardPrefab == null || exitPrefab == null)
+        {
+            Debug.LogError("Assign all six puzzle prefabs.");
+            enabled = false;
+            return;
+        }
 
-        // Any one of these three elements opens the door.
+        BuildTestPuzzles();
+    }
+
+    private void BuildTestPuzzles()
+    {
+        // Input elements.
+        plate = new PressurePlateElement(
+            new Vector2Int(2, 2));
+
+        key = new KeyElement(
+            new Vector2Int(4, 2));
+
+        lever = new LeverElement(
+            new Vector2Int(6, 2));
+
+        // Dependent elements.
         door = new DoorElement(plate, key, lever);
-
-        // The key OR lever disables the hazard.
         hazard = new HazardElement(key, lever);
 
-        // All five objectives must resolve before the exit opens.
+        // Hazard location for damage detection.
+        hazardCell = new Vector2Int(4, 3);
+
+        // All five objectives must be completed.
         var objectives = new List<PuzzleElement>
         {
             plate,
@@ -69,29 +102,50 @@ public class PuzzleTestLevel : MonoBehaviour
 
         puzzleSystem = new PuzzleSystem(elements, exit);
 
-        puzzleSystem.OnExitUnlocked += HandleExitUnlocked;
+        puzzleSystem.OnExitUnlocked += () =>
+        {
+            Debug.Log("All objectives complete! Exit open.");
+        };
 
-        // 2. Create visible sprites at those same coordinates.
-        CreateElementVisual(plate, "Pressure Plate",
-            new Color(0.2f, 0.6f, 1f));
+        // Spawn puzzle prefabs at Tilemap cells.
+        Spawn(platePrefab, plate, plate.Cell, "Plate");
+        Spawn(keyPrefab, key, key.Cell, "Key");
+        Spawn(leverPrefab, lever, lever.Cell, "Lever");
 
-        CreateElementVisual(key, "Key",
-            new Color(1f, 0.85f, 0.1f));
+        Spawn(doorPrefab, door,
+            new Vector2Int(3, 3), "Door");
 
-        CreateElementVisual(lever, "Lever",
-            new Color(0.7f, 0.3f, 1f));
+        Spawn(hazardPrefab, hazard,
+            hazardCell, "Hazard");
 
-        CreateElementVisual(door, "Door",
-            new Color(0.5f, 0.3f, 0.15f));
+        Spawn(exitPrefab, exit,
+            new Vector2Int(7, 3), "Exit");
+    }
 
-        CreateElementVisual(hazard, "Hazard",
-            new Color(1f, 0.2f, 0.2f));
+    private void Spawn(
+        PuzzleVisual prefab,
+        PuzzleElement element,
+        Vector2Int cell,
+        string objectName)
+    {
+        Vector3Int tileCell =
+            new Vector3Int(cell.x, cell.y, 0);
 
-        CreateElementVisual(exit, "Exit",
-            new Color(0.9f, 0.9f, 0.9f));
+        Vector3 worldPosition =
+            tilemap.GetCellCenterWorld(tileCell);
 
-        Debug.Log(
-            "Puzzle test ready. Stand on the lever and press E.");
+        // Slightly in front of the tilemap.
+        worldPosition.z = -0.1f;
+
+        PuzzleVisual visual = Instantiate(
+            prefab,
+            worldPosition,
+            Quaternion.identity,
+            transform
+        );
+
+        visual.Initialize(element, objectName, Color.white);
+        visuals.Add(element, visual);
     }
 
     private void Update()
@@ -99,106 +153,62 @@ public class PuzzleTestLevel : MonoBehaviour
         if (puzzleSystem == null)
             return;
 
-        // Convert the player's world position to a grid cell.
-        Vector2Int playerCell = WorldToCell(player.position);
+        // Convert player world position to Tilemap cell.
+        Vector3Int tileCell =
+            tilemap.WorldToCell(player.position);
 
-        // Press E to interact with a lever.
+        Vector2Int playerCell = new Vector2Int(
+            tileCell.x,
+            tileCell.y
+        );
+
         bool interactPressed =
             Keyboard.current != null &&
             Keyboard.current.eKey.wasPressedThisFrame;
 
-        var context = new PuzzleContext(
+        // Update puzzle logic.
+        PuzzleContext context = new PuzzleContext(
             playerCell,
             interactPressed
         );
 
-        // Update puzzle logic.
         puzzleSystem.Tick(context);
 
-        // Update the sprite colors and visibility.
-        UpdateVisuals();
-    }
-
-    private Vector2Int WorldToCell(Vector3 worldPosition)
-    {
-        return new Vector2Int(
-            Mathf.RoundToInt(worldPosition.x / cellSize),
-            Mathf.RoundToInt(worldPosition.y / cellSize)
-        );
-    }
-
-    private Vector3 CellToWorld(Vector2Int cell)
-    {
-        return new Vector3(
-            cell.x * cellSize,
-            cell.y * cellSize,
-            0f
-        );
-    }
-
-    
-    private void CreateElementVisual(
-        PuzzleElement element,
-        string objectName,
-        Color color)
-    {
-        PuzzleVisual visual = Instantiate(
-            visualPrefab,
-            GetElementPosition(element),
-            Quaternion.identity,
-            transform
-        );
-
-        visual.Initialize(element, objectName, color);
-
-        visuals.Add(element, visual);
-    }
-
-
-    private Vector3 GetElementPosition(PuzzleElement element)
-    {
-        if (element == plate)
-            return CellToWorld(plate.Cell);
-
-        if (element == key)
-            return CellToWorld(key.Cell);
-
-        if (element == lever)
-            return CellToWorld(lever.Cell);
-
-        if (element == door)
-            return CellToWorld(new Vector2Int(3, 4));
-
-        if (element == hazard)
-            return CellToWorld(new Vector2Int(5, 4));
-
-        // Exit has its own fixed test coordinate.
-        return CellToWorld(new Vector2Int(7, 4));
-    }
-
-    private void UpdateVisuals()
-    {
+        // Refresh all sprites and colliders.
         foreach (PuzzleVisual visual in visuals.Values)
         {
-            if (visual != null)
-                visual.Refresh();
+            visual.Refresh();
         }
+
+        // Check active hazards.
+        CheckHazardDamage(playerCell);
     }
 
-    private void HandleExitUnlocked()
+    private void CheckHazardDamage(Vector2Int playerCell)
     {
-        Debug.Log("EXIT UNLOCKED! All objectives are resolved.");
+        if (hazard.IsDisabled)
+            return;
+
+        if (playerCell != hazardCell)
+            return;
+
+        if (Time.time < nextDamageTime)
+            return;
+
+        nextDamageTime = Time.time +
+            Mathf.Max(0.1f, damageInterval);
+
+        playerManager.TakeDamage(hazardDamage);
     }
 
-    private void OnDestroy()
+    public void ResetLevelPuzzles()
     {
-        if (puzzleSystem != null)
-            puzzleSystem.OnExitUnlocked -= HandleExitUnlocked;
+        puzzleSystem.ResetPuzzles();
+        nextDamageTime = 0f;
 
-        if (squareSprite != null)
-            Destroy(squareSprite.texture);
-
-        if (squareSprite != null)
-            Destroy(squareSprite);
+        foreach (PuzzleVisual visual in visuals.Values)
+        {
+            visual.Refresh();
+        }
     }
 }
