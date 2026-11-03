@@ -13214,6 +13214,14 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1945137349117906161, guid: 39b1d694017d44d5d87356f2244437c2, type: 3}
+      propertyPath: m_SortingLayer
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1945137349117906161, guid: 39b1d694017d44d5d87356f2244437c2, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -1823457175
+      objectReference: {fileID: 0}
+    - target: {fileID: 1945137349117906161, guid: 39b1d694017d44d5d87356f2244437c2, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
@@ -13358,6 +13366,14 @@ PrefabInstance:
     - target: {fileID: 1829090107210581046, guid: ad78a9054b6f8614f9efff9f8d2b8409, type: 3}
       propertyPath: m_Name
       value: PlayerWithCamera
+      objectReference: {fileID: 0}
+    - target: {fileID: 5047564144896794657, guid: ad78a9054b6f8614f9efff9f8d2b8409, type: 3}
+      propertyPath: m_SortingLayer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5047564144896794657, guid: ad78a9054b6f8614f9efff9f8d2b8409, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1421662841
       objectReference: {fileID: 0}
     - target: {fileID: 6145352994638292934, guid: ad78a9054b6f8614f9efff9f8d2b8409, type: 3}
       propertyPath: m_Size.x
@@ -13826,7 +13842,7 @@ MonoBehaviour:
   cheesePrefab: {fileID: 7660652673648722609, guid: d82cd4aee79354694b6aa8363a9495e6, type: 3}
   hazardDamage: 10
   damageInterval: 0.5
-  cheeseHealAmount: 10
+  cheeseHealAmount: 20
 --- !u!4 &1770252526
 Transform:
   m_ObjectHideFlags: 0

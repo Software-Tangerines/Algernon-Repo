@@ -78,11 +78,11 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 2006213457
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 0c3fead384336404293ec796469ae38c, type: 3}
+  m_Sprite: {fileID: -4075992363946443487, guid: 2e662bb942c1e42eb90d6504caa8a9a2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -105,4 +105,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53204180c3d5ff94b93e4b509a8736cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PuzzleVisual
-  resolvedSprite: {fileID: 0}
+  resolvedSprite: {fileID: 7525091311312828976, guid: 4b0826a26e64649bc87e1ee8feb99c60, type: 3}
