@@ -1,16 +1,22 @@
-
 using UnityEngine;
 
+[RequireComponent(typeof(SpriteRenderer))]
 public class PuzzleVisual : MonoBehaviour
 {
+    [Header("Appearance")]
+    [SerializeField] private Sprite resolvedSprite;
+
     private PuzzleElement element;
     private SpriteRenderer spriteRenderer;
+    private Collider2D blockingCollider;
 
-    private Color originalColor;
+    private Sprite originalSprite;
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        blockingCollider = GetComponent<Collider2D>();
+        originalSprite = spriteRenderer.sprite;
     }
 
     public void Initialize(
@@ -21,10 +27,8 @@ public class PuzzleVisual : MonoBehaviour
         element = puzzleElement;
         gameObject.name = objectName;
 
-        originalColor = color;
         spriteRenderer.color = color;
-
-        transform.localScale = new Vector3(0.7f, 0.7f, 1f);
+        Refresh();
     }
 
     public void Refresh()
@@ -35,41 +39,32 @@ public class PuzzleVisual : MonoBehaviour
         // A collected key disappears.
         if (element is KeyElement)
         {
-            gameObject.SetActive(!element.IsResolved);
+            spriteRenderer.enabled = !element.IsResolved;
             return;
         }
 
-        // A resolved pressure plate or lever turns green.
-        if (element is PressurePlateElement ||
-            element is LeverElement)
+        // Use a different sprite when resolved, if provided.
+        if (resolvedSprite != null)
         {
-            spriteRenderer.color = element.IsResolved
-                ? Color.green
-                : originalColor;
+            spriteRenderer.sprite = element.IsResolved
+                ? resolvedSprite
+                : originalSprite;
         }
 
-        // A door turns green when open.
+        // A door physically blocks movement while closed.
         if (element is DoorElement door)
         {
-            spriteRenderer.color = door.IsOpen
-                ? Color.green
-                : originalColor;
+            if (blockingCollider != null)
+                blockingCollider.enabled = !door.IsOpen;
         }
 
-        // A disabled hazard turns gray.
+        // A disabled hazard is still visible,
+        // but its color indicates that it is safe.
         if (element is HazardElement hazard)
         {
-            spriteRenderer.color = hazard.IsDisabled
-                ? Color.gray
-                : originalColor;
-        }
-
-        // The exit turns green when unlocked.
-        if (element is ExitElement exit)
-        {
-            spriteRenderer.color = exit.IsOpen
-                ? Color.green
-                : originalColor;
+            spriteRenderer.sprite = element.IsResolved
+                ? resolvedSprite
+                : originalSprite;
         }
     }
 }
