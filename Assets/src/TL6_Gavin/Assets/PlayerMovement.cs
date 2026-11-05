@@ -5,6 +5,7 @@ public class PlayerMovement : MonoBehaviour
 {
     public float moveSpeed = 5f;
     public Animator animator;
+    public AudioManager audioManager;
 
     [Header("Mobile")]
     public VirtualJoystick joystick; // optional, assign for touch controls
@@ -17,13 +18,17 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        // Find AudioManager on this player if it wasn't assigned in Inspector
+        if (audioManager == null)
+            audioManager = GetComponent<AudioManager>();
     }
 
     void Update()
     {
         movement = Vector2.zero;
 
-        // Keyboard (null on phones, so check first)
+        // Keyboard
         var keyboard = Keyboard.current;
         if (keyboard != null)
         {
@@ -32,7 +37,6 @@ public class PlayerMovement : MonoBehaviour
             if (keyboard.aKey.isPressed) movement.x -= 1;
             if (keyboard.dKey.isPressed) movement.x += 1;
 
-            // Space swaps between normal and inverted controls
             if (keyboard.spaceKey.wasPressedThisFrame)
                 ToggleControls();
         }
@@ -41,11 +45,15 @@ public class PlayerMovement : MonoBehaviour
         if (joystick != null)
             movement += joystick.Direction;
 
-        // Dynamic binding happens here
+        // Apply current input transformer
         movement = currentTransformer.TransformMovement(movement);
 
-        // Cap at length 1 (keeps diagonals even, and lets the joystick be analog)
+        // Keep diagonal movement capped
         movement = Vector2.ClampMagnitude(movement, 1f);
+
+        // Update walking sound using the final movement value
+        if (audioManager != null)
+            audioManager.PlayWalkingSound(movement);
 
         animator.SetFloat("Speed", movement.magnitude);
 
@@ -56,7 +64,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // Public so a UI Button can call it from its OnClick event
     public void ToggleControls()
     {
         if (currentTransformer is InvertedInputTransformer)
@@ -77,7 +84,6 @@ public class PlayerMovement : MonoBehaviour
     }
 }
 
-
 public class InputTransformer
 {
     public virtual Vector2 TransformMovement(Vector2 movement)
@@ -86,7 +92,6 @@ public class InputTransformer
     }
 }
 
-
 public class NormalInputTransformer : InputTransformer
 {
     public override Vector2 TransformMovement(Vector2 movement)
@@ -94,7 +99,6 @@ public class NormalInputTransformer : InputTransformer
         return movement;
     }
 }
-
 
 public class InvertedInputTransformer : InputTransformer
 {
