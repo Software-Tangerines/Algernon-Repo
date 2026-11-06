@@ -1,9 +1,13 @@
+
 using UnityEngine;
 
 public class AudioManager : MonoBehaviour
 {
     public AudioSource walkingAudioSource;
     public AudioClip walkingSound;
+
+    [Header("Cheese")]
+    public AudioClip cheeseSqueak;
 
     private void Start()
     {
@@ -30,5 +34,13 @@ public class AudioManager : MonoBehaviour
             if (walkingAudioSource.isPlaying)
                 walkingAudioSource.Stop();
         }
+    }
+
+    public void PlayCheeseSound()
+    {
+        if (walkingAudioSource == null || cheeseSqueak == null)
+            return;
+
+        walkingAudioSource.PlayOneShot(cheeseSqueak);
     }
 }
