@@ -169,6 +169,20 @@ public class GameCoordinator : MonoBehaviour
 
     public void Pause(bool paused)
     {
+        if(paused)
+        {
+            sessionMachine.TransitionTo(SessionState.Paused);
+            hazards.SetActive(false);
+            player.EnableInput(false);
+            hud.ShowPause(paused);
+        } 
+        if(!paused)
+        {
+            sessionMachine.TransitionTo(SessionState.Playing);
+            hazards.SetActive(true);
+            player.EnableInput(true);
+            hud.ShowPause(paused);
+        }
     }
 
     // Ends the run from any state except Boot and returns to the menu.
@@ -199,6 +213,18 @@ public class GameCoordinator : MonoBehaviour
         if (Keyboard.current.mKey.wasPressedThisFrame)
         {
             AbortRun();
+        }
+        if(Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            if(State == SessionState.Playing)
+            {
+                Pause(true);
+                return;
+            }
+            if(State == SessionState.Paused)
+            {
+                Pause(false);
+            }
         }
     }
 
