@@ -79,6 +79,7 @@ public class GameCoordinator : MonoBehaviour
         // 2. Count the timer down by this frame's duration
         float deltaTime = Time.deltaTime;
         timer.Advance(deltaTime);
+        hud.SetTimer(timer.RemainingSeconds);
         // 3. Add the same duration to the run's elapsed time
         statistics.ElapsedTime += deltaTime;
         // 4. Read the player's current cell into a local variable
@@ -102,9 +103,7 @@ public class GameCoordinator : MonoBehaviour
                 EndLevel(verdict);
                 return;
             }
-        }
-        // 8. Tell the HUD how much time is left
-        hud.SetTimer(timer.RemainingSeconds);
+        }  
     }
 
     // Ends the level with the rules' verdict: change state, stop the level, tell listeners.
@@ -171,14 +170,22 @@ public class GameCoordinator : MonoBehaviour
     {
         if(paused)
         {
-            sessionMachine.TransitionTo(SessionState.Paused);
+            if (!sessionMachine.TransitionTo(SessionState.Paused))
+            {
+                Debug.LogWarning($"Pause: can't pause from {State}");
+                return;
+            }
             hazards.SetActive(false);
             player.EnableInput(false);
             hud.ShowPause(paused);
         } 
         if(!paused)
         {
-            sessionMachine.TransitionTo(SessionState.Playing);
+            if (!sessionMachine.TransitionTo(SessionState.Playing))
+            {
+                Debug.LogWarning($"Pause: can't resume from {State}");
+                return;
+            }
             hazards.SetActive(true);
             player.EnableInput(true);
             hud.ShowPause(paused);
@@ -214,6 +221,7 @@ public class GameCoordinator : MonoBehaviour
         {
             AbortRun();
         }
+        /*
         if(Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             if(State == SessionState.Playing)
@@ -226,6 +234,7 @@ public class GameCoordinator : MonoBehaviour
                 Pause(false);
             }
         }
+        */
     }
 
     // ---------- Level setup ----------
