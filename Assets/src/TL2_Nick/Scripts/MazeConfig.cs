@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 
+namespace Algernon.Maze {
+
 public class MazeConfig : MonoBehaviour {
     public int Seed;
     public int Width;
@@ -13,4 +15,6 @@ public class MazeConfig : MonoBehaviour {
         Height = height;
         //Difficulty = difficulty;
     }
+}
+
 }
