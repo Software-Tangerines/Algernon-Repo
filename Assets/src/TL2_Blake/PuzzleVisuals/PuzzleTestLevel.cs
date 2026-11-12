@@ -59,6 +59,10 @@ public class PuzzleTestLevel : MonoBehaviour, IPuzzleSystem
     public bool AllObjectivesComplete =>
         puzzleSystem != null && puzzleSystem.AllObjectivesComplete;
 
+    public int CheeseCount => collectedCheeses.Count;
+
+    public int TotalCheeseCount => cheeses.Count;
+
     private void Awake()
     {
         if (tilemap == null || player == null ||
@@ -80,21 +84,6 @@ public class PuzzleTestLevel : MonoBehaviour, IPuzzleSystem
         }
 
         BuildTestPuzzles();
-    }
-
-    private void Update()
-    {
-        if (player == null || tilemap == null)
-            return;
-
-        Vector3Int cell = tilemap.WorldToCell(player.position);
-
-        Debug.Log(
-            $"Player World: {player.position} | " +
-            $"Player Cell: {cell}"
-        );
-
-        NotifyPlayerCell(new Vector2Int(cell.x, cell.y));
     }
 
     private void BuildTestPuzzles()
@@ -245,7 +234,7 @@ public class PuzzleTestLevel : MonoBehaviour, IPuzzleSystem
                 cheesePrefab,
                 cheeses[i],
                 cheeses[i].Cell,
-                "Cheese " + (i + 1)
+                "Cheese"
             );
         }
 

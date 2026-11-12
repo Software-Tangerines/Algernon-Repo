@@ -13818,6 +13818,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d98874366d319540bbf00d8f3aa5e08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: TL6_GavinAssembly::PlayerManager
+  tilemap: {fileID: 200515708}
   data:
     position: {x: 0, y: 0, z: 0}
     health: 100
@@ -13996,10 +13997,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PuzzleTestLevel
   tilemap: {fileID: 200515708}
-  player: {fileID: 1759146054}
   playerManager: {fileID: 1759146047}
+  player: {fileID: 1759146054}
   platePrefab: {fileID: 8800674739618815769, guid: 864dec505336244deb2deaafcd0de3d6, type: 3}
-  keyPrefab: {fileID: 187910212517990843, guid: c28c8431be48f42358ce94d77fe0b74b, type: 3}
   leverPrefab: {fileID: 5336042685693548177, guid: 58cc2f2e2326347e6a6b5fdc4834f7e9, type: 3}
   doorPrefab: {fileID: 7432242481699995911, guid: 2c9d2f2cbb46b4df48e3edaba864b467, type: 3}
   hazardPrefab: {fileID: 6761788798548937664, guid: 55d520c6d460845909f047dbfcab4092, type: 3}
