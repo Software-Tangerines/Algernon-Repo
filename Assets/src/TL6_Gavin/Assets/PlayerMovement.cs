@@ -22,6 +22,10 @@ public class PlayerMovement : MonoBehaviour
         // Find AudioManager on this player if it wasn't assigned in Inspector
         if (audioManager == null)
             audioManager = GetComponent<AudioManager>();
+
+        // The joystick lives in the gameplay scene, not on the player prefab.
+        if (joystick == null)
+            joystick = FindAnyObjectByType<VirtualJoystick>();
     }
 
     void Update()

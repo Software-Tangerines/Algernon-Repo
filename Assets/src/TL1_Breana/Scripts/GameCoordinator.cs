@@ -15,6 +15,8 @@ public class GameCoordinator : MonoBehaviour
     private readonly LevelCatalogue catalogue = new LevelCatalogue();
     private readonly RunTimer timer = new RunTimer();
     private readonly List<LevelRule> activeRules = new List<LevelRule>();
+    private readonly List<IGameplayVisibility> gameplayVisibility =
+        new List<IGameplayVisibility>();
 
     private int currentLevelIndex;
     private LevelConfig currentLevel;
@@ -251,6 +253,16 @@ public class GameCoordinator : MonoBehaviour
         puzzles.ResetPuzzles();
         hazards.ResetHazards();
         hazards.SetActive(true);
+        foreach (IGameplayVisibility gameplayObject in gameplayVisibility)
+        {
+            gameplayObject.SetGameplayVisible(true);
+        }
+
+        if (player is MonoBehaviour playerBehaviour)
+        {
+            playerBehaviour.gameObject.SetActive(true);
+        }
+
         player.SpawnAt(maze.CellToWorld(maze.SpawnCell));
         player.EnableInput(true);
 
@@ -270,18 +282,38 @@ public class GameCoordinator : MonoBehaviour
     // Swap each Null stand-in for a real feature if one exists in the loaded scene.
     private void FindFeatures()
     {
-        maze = FindFeature(maze);
-        player = FindFeature(player);
-        puzzles = FindFeature(puzzles);
-        hazards = FindFeature(hazards);
-        view = FindFeature(view);
-        hud = FindFeature(hud);
+        MonoBehaviour[] behaviours =
+            FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include);
+
+        maze = FindFeature(maze, behaviours);
+        player = FindFeature(player, behaviours, includeInactive: true);
+        puzzles = FindFeature(puzzles, behaviours);
+        hazards = FindFeature(hazards, behaviours);
+        view = FindFeature(view, behaviours);
+        hud = FindFeature(hud, behaviours);
+
+        gameplayVisibility.Clear();
+        foreach (MonoBehaviour behaviour in behaviours)
+        {
+            if (behaviour is IGameplayVisibility visibleGameplayObject)
+            {
+                gameplayVisibility.Add(visibleGameplayObject);
+            }
+        }
     }
 
-    private static T FindFeature<T>(T fallback) where T : class
+    private static T FindFeature<T>(
+        T fallback,
+        MonoBehaviour[] behaviours,
+        bool includeInactive = false) where T : class
     {
-        foreach (MonoBehaviour behaviour in FindObjectsByType<MonoBehaviour>())
+        foreach (MonoBehaviour behaviour in behaviours)
         {
+            if (!includeInactive && !behaviour.gameObject.activeInHierarchy)
+            {
+                continue;
+            }
+
             if (behaviour is T feature)
             {
                 return feature;

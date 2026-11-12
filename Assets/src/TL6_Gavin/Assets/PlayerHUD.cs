@@ -1,8 +1,9 @@
+
 using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
 
-public class PlayerHUD : MonoBehaviour
+public class PlayerHUD : MonoBehaviour, IGameplayVisibility
 {
     public PlayerManager player;
     public TMP_Text healthText;
@@ -18,6 +19,16 @@ public class PlayerHUD : MonoBehaviour
 
     private bool wasAlive = true;
 
+    private void Start()
+    {
+        UpdateCheeseText();
+    }
+
+    public void SetGameplayVisible(bool visible)
+    {
+        gameObject.SetActive(visible);
+    }
+
     private void Update()
     {
         if (player == null)
@@ -31,32 +42,32 @@ public class PlayerHUD : MonoBehaviour
                 " / " + player.data.maxHealth;
         }
 
-        // Reset cheese when the player dies
+        // Reset cheese count when the player dies
         if (wasAlive && !player.IsAlive)
         {
             cheeseCount = 0;
-            collectedCheeses.Clear();
             UpdateCheeseText();
         }
 
         wasAlive = player.IsAlive;
 
-        // Find cheese sprites
-        SpriteRenderer[] sprites =
-            Object.FindObjectsByType<SpriteRenderer>();
+        // Cheese visuals are spawned by the puzzle system after this HUD starts.
+        SpriteRenderer[] sprites = Object.FindObjectsByType<SpriteRenderer>();
 
-        foreach (SpriteRenderer sprite in sprites)
+        foreach (SpriteRenderer cheese in sprites)
         {
-            if (sprite.gameObject.name != "Cheese")
+            if (cheese == null ||
+                !(cheese.gameObject.name == "Cheese" ||
+                  cheese.gameObject.name.StartsWith("Cheese ")))
                 continue;
 
-            // Cheese is collected when its renderer is disabled
-            if (!sprite.enabled && collectedCheeses.Add(sprite))
+            // A disabled renderer means the cheese was collected
+            if (!cheese.enabled && collectedCheeses.Add(cheese))
             {
                 cheeseCount++;
                 UpdateCheeseText();
 
-                // Play squeak independently of the walking AudioSource
+                // Play cheese sound independently of walking audio
                 if (cheeseSqueak != null)
                 {
                     AudioSource.PlayClipAtPoint(

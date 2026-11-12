@@ -9,3 +9,8 @@ public interface IPlayerCharacter
     void Kill(DeathCause cause);        // called by F1 only, never by F4
     void EnableInput(bool enabled);     // false while paused
 }
+
+public interface IGameplayVisibility
+{
+    void SetGameplayVisible(bool visible);
+}
