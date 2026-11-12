@@ -1,69 +1,78 @@
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 // RECURSIVE BACK TRACKING ALGO
-namespace Algernon.Maze {
+namespace Algernon.Maze
+{
+    public class RBTalgo : MazeAlgorithm
+    {
+        public void Carve(MazeData grid, System.Random rng)
+        {
+            // Stack will act as where we are
+            Stack<Vector2Int> stack = new Stack<Vector2Int>();
 
-// HOW RBT WORKS
-// pick starting cell, mark it as visited
-// look at neighbors that havent been visited
-// pick one at random
-// remove wall from between
-// move into new cell
-// IF NO NEIGHBORS
-// back up prev cell
-// check for neighbors again
+            // Pick starting cell, mark it as visited
+            Vector2Int start = new Vector2Int(0, 0);
+            grid.cellAt(start).Visited = true;
+            stack.Push(start);
 
-public class RBTalgo : MazeAlgorithm {
+            while (stack.Count > 0)
+            {
+                Vector2Int current = stack.Peek();
 
-    public void Carve(MazeData grid, Random rng) {
+                // Look at unvisited neighbors
+                List<Vector2Int> unvisitedNeighbours = getUnvisited(grid, current);
 
-        // stack will act as where we are
-        Stack<Vector2Int> stack = new Stack<Vector2Int>();
+                // If no neighbors, back up to previous cell
+                if (unvisitedNeighbours.Count == 0)
+                {
+                    stack.Pop();
+                    continue;
+                }
 
-        // pick starting cell, mark it as visited
-        Vector2Int start = new Vector2Int(0, 0);
-        cellAt(start).Visited = true;
-        stack.Push(start);
+                // Pick a neighbor at random
+                Vector2Int next = unvisitedNeighbours[rng.Next(unvisitedNeighbours.Count)];
 
-        while (stack.Count > 0) {
-            Vector2Int current = stack.Peek();
+                // Remove walls between cells
+                grid.removeWall(current, next);
 
-            // look at unvisited neighbors
-            List<Vector2Int> unvisitedNeighbours = getUnvisited(grid, current);
+                grid.cellAt(next).Visited = true;
+                stack.Push(next);
+            }
+        }
 
-            // if no neighbors, back up prev cell and repeat
-            if (unvisitedNeighbours.Count == 0) {
-                stack.Pop();
-                continue;
+        protected static List<Vector2Int> getUnvisited(MazeData grid, Vector2Int cell)
+        {
+            // Make list for unvisited neighbors
+            List<Vector2Int> result = new List<Vector2Int>(4);
+
+            // Check each possible neighbor
+            foreach (Vector2Int offset in new[]
+            {
+                Vector2Int.up,
+                Vector2Int.down,
+                Vector2Int.left,
+                Vector2Int.right
+            })
+            {
+                Vector2Int candidate = cell + offset;
+
+                // Check maze boundaries
+                if (candidate.x >= 0 &&
+                    candidate.x < grid.Width &&
+                    candidate.y >= 0 &&
+                    candidate.y < grid.Height)
+                {
+                    if (!grid.cellAt(candidate).Visited)
+                    {
+                        result.Add(candidate);
+                    }
+                }
             }
 
-            // if unvisited neighbors, pick one at random, remove walls, and move into
-            Vector2Int next = unvisitedNeighbours[rng.Next(unvisitedNeighbours.Count)];
-            grid.removeWall(current, next);
-
-            cellAt(next).Visited = true;
-            stack.Push(next);
+            return result;
         }
     }
-
-    protected static List<Vector2Int> getUnvisited(MazeData grid, Vector2Int cell) {
-        // make list for unvisited neighbors
-        List<Vector2Int> result = new List<Vector2Int>(4);
-
-        // iterates through each possible neighbor of a cell (up/down/left/right)
-        foreach (Vector2Int offset in new[] { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right }) {
-            Vector2Int candidate = cell + offset;
-
-            // if not visited, add to list
-            if (!cellAt(candidate).Visited)
-                result.Add(candidate);
-        }
-
-        // return list
-        return result;
-    }
-}
-
 }
