@@ -1,13 +1,37 @@
 using UnityEngine;
+using UnityEngine.Tilemaps;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class PlayerManager : MonoBehaviour, IPlayerCharacter
 {
+    /*
+    blake: since the tile map for the game is offset, the transform position at the center 
+    of the game is different than the tile map cell position and was causing an issue with 
+    the player interacting with puzzle elements. essentially the player world position is 
+    differant than its cell position.
+    please let me know if this change is something that you wouldn't want and I will try to 
+    find a work around. the fix could also just be making all the tilemap tranformation set to (0,0,0)
+    */
+    [Header("Grid Reference")]
+    [SerializeField] private Tilemap tilemap;
+
+    public Vector2Int CurrentCell
+    {
+        get
+        {
+            Vector3Int cell = tilemap.WorldToCell(transform.position);
+            return new Vector2Int(cell.x, cell.y);
+        }
+    }
+
     public PlayerData data = new PlayerData();
 
     public bool IsAlive => data.currentState != PlayerState.Dead;
+    /*
+    previous implementation of the players current cell.
     public Vector2Int CurrentCell => Vector2Int.RoundToInt(transform.position);
+    */
     public void SpawnAt(Vector3 worldPosition) => transform.position = worldPosition;
     public void Kill(DeathCause cause) => data.currentState = PlayerState.Dead;
     public void EnableInput(bool enabled) => SetFrozen(!enabled);
