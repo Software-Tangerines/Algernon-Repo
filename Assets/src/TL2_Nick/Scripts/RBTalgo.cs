@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = System.Random;
 
 // RECURSIVE BACK TRACKING ALGO
 namespace Algernon.Maze {
@@ -24,7 +25,7 @@ public class RBTalgo : MazeAlgorithm {
 
         // pick starting cell, mark it as visited
         Vector2Int start = new Vector2Int(0, 0);
-        cellAt(start).Visited = true;
+        grid.cellAt(start).Visited = true;
         stack.Push(start);
 
         while (stack.Count > 0) {
@@ -43,7 +44,7 @@ public class RBTalgo : MazeAlgorithm {
             Vector2Int next = unvisitedNeighbours[rng.Next(unvisitedNeighbours.Count)];
             grid.removeWall(current, next);
 
-            cellAt(next).Visited = true;
+            grid.cellAt(next).Visited = true;
             stack.Push(next);
         }
     }
@@ -57,7 +58,7 @@ public class RBTalgo : MazeAlgorithm {
             Vector2Int candidate = cell + offset;
 
             // if not visited, add to list
-            if (!cellAt(candidate).Visited)
+            if (!grid.cellAt(candidate).Visited)
                 result.Add(candidate);
         }
 

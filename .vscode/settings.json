@@ -67,9 +67,6 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-<<<<<<< Updated upstream
-    "dotnet.defaultSolution": "Algernon-Repo.slnx"
-=======
+    "Algernon-Repo.slnx=======dotnet.defaultSolution": "AlgernonGIT.slnx>>>>>>>Stashedchanges",
     "dotnet.defaultSolution": "AlgernonGIT.slnx"
->>>>>>> Stashed changes
 }

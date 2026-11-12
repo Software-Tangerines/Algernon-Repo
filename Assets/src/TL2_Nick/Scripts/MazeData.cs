@@ -9,7 +9,7 @@ public class MazeData : MonoBehaviour {
     public int Height;
 
     // 2d array with type class Cell
-    private Cell[,] cells;
+    private Cell[,] Grid;
 
     // both spawn and exit for the maze
     public Vector2Int spawnCell;
@@ -20,7 +20,7 @@ public class MazeData : MonoBehaviour {
         Config = config;
         Width = Config.Width;
         Height = Config.Height;
-        Grid = new Cell[Config.Width, Config.Height];
+        Grid = new Cell[Width, Height];
 
         // cycles through the new 2d array, and makes a new cell with a x and y value for each
         for (int x = 0; x < Config.Width; x++)
@@ -29,8 +29,8 @@ public class MazeData : MonoBehaviour {
     }
 
     // gets cells in grid by REFERENCE NOT VALUE
-    public ref cellAt(Vector2Int cell) {
-        return Grid[cell.x, cell.y]
+    public Cell cellAt(Vector2Int cell) {
+        return Grid[cell.x, cell.y];
     }
 
     public void removeWall(Vector2Int a, Vector2Int b){
@@ -49,6 +49,8 @@ public class MazeData : MonoBehaviour {
         if (dir == Vector2Int.down) return WallFlags.South;
         if (dir == Vector2Int.right) return WallFlags.East;
         if (dir == Vector2Int.left) return WallFlags.West;
+        else 
+            return WallFlags.North; // FIX LATER
     }
 }
 
