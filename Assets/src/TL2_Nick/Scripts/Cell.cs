@@ -1,9 +1,13 @@
 using System;
 using UnityEngine;
 
+// maze cell design
+
 namespace Algernon.Maze {
 
 // walls for each cell outside cell class
+// bitmask enum, lets us store multiple walls in a variable
+// four 0s, each one represents a wall
 [Flags]
 public enum WallFlags {
     None = 0,

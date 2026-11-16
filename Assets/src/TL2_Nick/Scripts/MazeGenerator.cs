@@ -1,33 +1,39 @@
 using UnityEngine;
 using System;
 
+// the 'brains' of the operation, high level instructions
+
 namespace Algernon.Maze {
 
 public class MazeGenerator : MonoBehaviour {
 
-    // MazeConfig good to go
-    // Cell should also be good
-
-    // need to keep working on MazeData and MazeGenerator
-
-    // then work on a single algorithm in MazeAlgorithm and the MazeRenderer
-    // can work on anchor points later
-
     public MazeData Generate(MazeConfig config) {
-        var rng = new System.Random(config.Seed);
-        var maze = new MazeData(config);
+        System.Random rng = new System.Random(config.Seed);
+        MazeData maze = new MazeData(config);
 
-        // MazeAlgorithm algorithm = SelectAlgorithm(config, out bool needsRatio);
-        // algorithm.Carve(maze, rng);
-        // algorithm.PostProcess(maze, rng);
+        // hardcoding rbt rn cause i can't be bothered
+        RBTalgo algo = new RBTalgo();
 
-        // PlaceSpawnAndExit(maze, rng);
+        // carve
+        algo.Carve(maze, rng);
+        // post process only matters when braided algo goes, IMPLEMENT LATER
 
-        // Current = maze;
-        // _renderer?.Build(maze);
+        // place spawn and exit
+        MazeData.placeSpawnExit(maze, rng);
+
+        // solvability
+        if (MazeData.solvable(maze, maze.spawnCell, maze.exitCell))
+            Debug.Log("good luck");
+        else
+            throw new Exception("Maze no solvable");
+
+
+        // reserved coords and anchors?
+        // render maze
 
         return maze;
     }
+
 
 
 }

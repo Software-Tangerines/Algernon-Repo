@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 
+// settings for maze
+
 namespace Algernon.Maze {
 
 public class MazeConfig : MonoBehaviour {

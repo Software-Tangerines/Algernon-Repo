@@ -4,6 +4,7 @@ using UnityEngine;
 using Random = System.Random;
 
 // RECURSIVE BACK TRACKING ALGO
+
 namespace Algernon.Maze {
 
 // HOW RBT WORKS
@@ -16,7 +17,7 @@ namespace Algernon.Maze {
 // back up prev cell
 // check for neighbors again
 
-public class RBTalgo : MazeAlgorithm {
+public class RBTalgo : MonoBehaviour {
 
     public void Carve(MazeData grid, Random rng) {
 
