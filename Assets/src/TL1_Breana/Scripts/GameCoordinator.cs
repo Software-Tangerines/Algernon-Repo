@@ -113,6 +113,10 @@ public class GameCoordinator : MonoBehaviour
         bool won = verdict == RuleVerdict.Win;
         // 2. Ask the session machine for that transition
         sessionMachine.TransitionTo(won ? SessionState.Won : SessionState.Lost);
+        if (!won)
+        {
+            statistics.Deaths++;
+        }
         // 3. Stop hazards and the player's input
         hazards.SetActive(false);
         player.EnableInput(false);
@@ -286,6 +290,12 @@ public class GameCoordinator : MonoBehaviour
         hazards.SetActive(true);
         player.SpawnAt(maze.CellToWorld(maze.SpawnCell));
         player.EnableInput(true);
+
+        view.LoadSchedule(currentLevelIndex);
+        if(player is Component playerComponent)
+        {
+            view.BindFollowTarget(playerComponent.transform);
+        }
 
         sessionMachine.TransitionTo(SessionState.Playing);
         OnLevelStarted?.Invoke();

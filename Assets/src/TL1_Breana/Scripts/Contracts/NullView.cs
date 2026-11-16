@@ -6,4 +6,5 @@ public class NullView : IViewDirector
     public void BindFollowTarget(Transform target) => Debug.Log("NullView: follow target ignored");
     public void FrameMaze(Bounds mazeBounds) { }
     public void ClearDistortions() { }
+    public void LoadSchedule(int levelIndex) { }
 }
