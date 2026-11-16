@@ -164,6 +164,30 @@ public class GameCoordinator : MonoBehaviour
 
     public void AdvanceLevel()
     {
+        //Check for errors / invalid indexes
+        if(State != SessionState.Won)
+        {
+            throw new InvalidOperationException("Cannot advance if state is not won.");
+        }
+        statistics.LevelsCleared++;
+
+        //Advancing the level
+        if(currentLevelIndex < catalogue.Count - 1)
+        {
+            currentLevelIndex++;
+            sessionMachine.TransitionTo(SessionState.LevelLoading);
+            hazards.SetActive(false);
+            player.EnableInput(false);
+            SceneManager.LoadScene(GameplayScene);
+            return;
+            
+        }
+        //If last level
+        sessionMachine.TransitionTo(SessionState.RunComplete);
+        hazards.SetActive(false);
+        player.EnableInput(false);
+        OnRunEnded?.Invoke();
+        Debug.Log($"Run complete: {statistics.LevelsCleared} levels cleared in {statistics.ElapsedTime:F1}s");
     }
 
     public void Pause(bool paused)
@@ -213,6 +237,7 @@ public class GameCoordinator : MonoBehaviour
         {
             return;
         }
+        //All temporary to show features
         if (Keyboard.current.rKey.wasPressedThisFrame)
         {
             RestartLevel();
@@ -221,6 +246,11 @@ public class GameCoordinator : MonoBehaviour
         {
             AbortRun();
         }
+        if (Keyboard.current.nKey.wasPressedThisFrame)
+        {
+            AdvanceLevel();
+        }
+        //pause is created by TL6
         /*
         if(Keyboard.current.escapeKey.wasPressedThisFrame)
         {
@@ -245,6 +275,9 @@ public class GameCoordinator : MonoBehaviour
         FindFeatures();
 
         currentLevel = catalogue.Resolve(currentLevelIndex);
+        Debug.Log($"Level {currentLevelIndex +1} of {catalogue.Count} started: " +
+            $"{currentLevel.MazeWidth}x{currentLevel.MazeHeight} maze, " +
+            $"{currentLevel.TimeLimitSeconds}s, {currentLevel.PuzzlesRequired} cheese");
         timer.Reset(currentLevel.TimeLimitSeconds);
         BuildRules();
 
