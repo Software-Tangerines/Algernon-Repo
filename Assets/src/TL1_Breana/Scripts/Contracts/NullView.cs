@@ -7,4 +7,5 @@ public class NullView : IViewDirector
     public void FrameMaze(Bounds mazeBounds) { }
     public void ClearDistortions() { }
     public void LoadSchedule(int levelIndex) { }
+    public void SetPaused(bool paused) { }
 }

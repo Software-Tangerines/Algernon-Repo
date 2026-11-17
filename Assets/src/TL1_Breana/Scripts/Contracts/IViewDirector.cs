@@ -7,4 +7,5 @@ public interface IViewDirector
     void FrameMaze(Bounds mazeBounds);
     void ClearDistortions();
     void LoadSchedule(int levelIndex);
+    void SetPaused(bool paused);
 }

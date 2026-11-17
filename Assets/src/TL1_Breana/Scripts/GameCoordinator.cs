@@ -205,6 +205,7 @@ public class GameCoordinator : MonoBehaviour
             }
             hazards.SetActive(false);
             player.EnableInput(false);
+            view.SetPaused(true);
             hud.ShowPause(paused);
         } 
         if(!paused)
@@ -216,6 +217,7 @@ public class GameCoordinator : MonoBehaviour
             }
             hazards.SetActive(true);
             player.EnableInput(true);
+            view.SetPaused(false);
             hud.ShowPause(paused);
         }
     }
@@ -255,7 +257,7 @@ public class GameCoordinator : MonoBehaviour
             AdvanceLevel();
         }
         //pause is created by TL6
-        /*
+        
         if(Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             if(State == SessionState.Playing)
@@ -268,7 +270,7 @@ public class GameCoordinator : MonoBehaviour
                 Pause(false);
             }
         }
-        */
+        
     }
 
     // ---------- Level setup ----------
