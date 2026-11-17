@@ -11,7 +11,9 @@ public class NullMaze : IMazeQuery
     }
 
     public Vector2Int SpawnCell => new Vector2Int(0, 0);
-    public Vector2Int ExitCell => new Vector2Int(Size - 1, Size - 1);
+    // new Vector2Int(Size - 1, Size - 1);
+    //temporarily changed to match blakes exit cell
+    public Vector2Int ExitCell => new Vector2Int(7, 2);
 
     public Vector3 CellToWorld(Vector2Int cell)
     {

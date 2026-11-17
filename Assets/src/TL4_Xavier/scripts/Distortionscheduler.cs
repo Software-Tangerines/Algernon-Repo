@@ -140,6 +140,38 @@ public class DistortionScheduler
         }
     }
 
+    // ---- Snapshot support (CaptureState / RestoreState) -----------------
+
+    // True while this effect is ramping down to be removed.
+    public bool IsRemoving(DistortionID id) => removing[(int)id];
+
+    // Moves the clock without applying or ramping anything.
+    // Rows at or before the new time count as already applied, exactly as they would after a Tick.
+    public void SetClock(float clock)
+    {
+        Clock = Mathf.Max(0f, clock);
+        nextEntry = 0;
+        while (nextEntry < queue.Count && queue[nextEntry].startTime <= Clock) nextEntry++;
+    }
+
+    // Rebuilds the chain exactly as captured: same order, targets, current intensities and pending removals.
+    // Raises DistortionChanged once per restored effect so listeners (e.g. the HUD) catch up.
+    public void RestoreEffects(IReadOnlyList<CameraSnapshot.EffectEntry> effects)
+    {
+        Clear();
+        if (effects == null) return;
+        foreach (var e in effects)           // stored in chain order, so Add rebuilds the same order
+        {
+            var fx = CreateEffect(e.id);
+            if (fx == null) continue;
+            fx.Target = e.target;
+            fx.Current = e.current;
+            pipeline.Add(fx);
+            removing[(int)e.id] = e.removing;
+            DistortionChanged?.Invoke(e.id, e.target);
+        }
+    }
+
     // ---- Factory --------------------------------------------------------
 
     // Makes the effect object for an id. Add new effect classes here.
@@ -152,7 +184,7 @@ public class DistortionScheduler
             case DistortionID.Rotation:     return new RotationViewEffect();
             case DistortionID.Desaturation: return new DesaturationViewEffect();
             case DistortionID.Blackout:     return new BlackoutViewEffect();
-            // case DistortionId.Fog:       return new FogViewEffect();   // task 7
+            case DistortionID.Fog:          return new FogViewEffect();   // task 7
             default:
                 Debug.LogWarning($"[F5] {id} is not implemented yet.");
                 return null;

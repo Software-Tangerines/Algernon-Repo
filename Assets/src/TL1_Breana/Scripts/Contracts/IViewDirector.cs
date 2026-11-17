@@ -6,4 +6,6 @@ public interface IViewDirector
     void BindFollowTarget(Transform target);
     void FrameMaze(Bounds mazeBounds);
     void ClearDistortions();
+    void LoadSchedule(int levelIndex);
+    void SetPaused(bool paused);
 }

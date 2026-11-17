@@ -64,3 +64,17 @@ public class BlackoutViewEffect : ViewEffect
         return base.Process(s);
     }
 }
+
+
+// fog of war, how dark the unexplored cells are  0 = no fog 1 = fog on cells
+
+public class FogViewEffect : ViewEffect
+{
+    public override DistortionID Id => DistortionID.Fog;
+
+    public override CameraState Process(CameraState s)
+    {
+        s.fogOpacity = I;
+        return base.Process(s);
+    }
+}

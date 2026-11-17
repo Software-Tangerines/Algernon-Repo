@@ -1,0 +1,6 @@
+{
+    "name": "Tl6_PlayModeTests",
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ]
+}

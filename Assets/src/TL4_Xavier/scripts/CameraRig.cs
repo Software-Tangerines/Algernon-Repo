@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /*
@@ -15,7 +16,7 @@ Level-start flow (Champion doc, scenario FL1):
   4. when the ease finishes, Framed fires (exactly once per valid FrameMaze)
   5. after that it follows the mouse with smoothing
 
-Not done yet (later tasks): Shake (task 4.4), clamping to max size switching the minimap to overview (task 8).
+Shake: overlapping shakes use the largest envelope; the offset is applied only when drawing.
 */
 public class CameraRig
 {
@@ -23,10 +24,16 @@ public class CameraRig
     public const float MaxOrthoSize = 40f;       // FrameMaze never zooms out further than this
     public const float FrameMarginCells = 1f;    // empty border around the maze (1 cell = 1 world unit, F2's grid)
     public const float FrameEaseSeconds = 0.5f;  // time to ease from the framed view onto the mouse
+    public const float MaxShakeMagnitude = 2f; // contract magnitude clamped to [0,2] units type shi
+    public const float MaxShakeSeconds = 5f; // contract seconds clamoed to [0,5]
 
     // How fast follow catches up. With 20 the camera closes about 99 % of the gap in 0.25 s,
     // which meets the contract bound "|camera - target| <= 0.05 units within 0.25 s of the target stopping".
     public float FollowSharpness { get; set; } = 20f;
+
+    // Zoom override for Frame(). 0 = zoom out to fit the whole maze (contract default).
+    // > 0 = keep this ortho size instead (used by the TestMVP scene so it matches the MVP's zoom).
+    public float FixedOrthoSize { get; set; } = 0f;
 
     // Raised when the framing ease completes. ViewDirector re-raises it to F1.
     public event Action<Bounds> Framed;
@@ -34,6 +41,17 @@ public class CameraRig
     public Transform Target { get; private set; }
     public Vector2 Position { get; private set; }
     public float OrthoSize { get; private set; }
+
+    //random offset to add when drawing this frame <= the largest shake
+    public Vector2 ShakeOffset{ get; private set;}
+
+    private struct ShakeRequest // shake request :/
+    {
+        public float magnitude, seconds, elapsed;
+        public float Envelope => magnitude * (1f - elapsed / seconds); // decays linearly to 0
+    }
+    private readonly List<ShakeRequest> shakes = new List<ShakeRequest>();
+
 
     private Bounds framedBounds;
     private float easeElapsed;
@@ -75,13 +93,40 @@ public class CameraRig
         if (needed > MaxOrthoSize)
             Debug.LogWarning($"[F5] Maze needs ortho size {needed:F1}; clamped to {MaxOrthoSize}.");
 
-        OrthoSize = Mathf.Min(needed, MaxOrthoSize);
+        OrthoSize = FixedOrthoSize > 0f ? Mathf.Min(FixedOrthoSize, MaxOrthoSize) : Mathf.Min(needed, MaxOrthoSize);
         Position = b.center;            // snap to the maze centre, so it is fully framed right away
         framedBounds = b;
         easeElapsed = 0f;
         easing = true;
         return true;
     }
+
+    // shakes the picture 
+    public void Shake(float magnitude, float seconds)
+    {
+        if(!IsFinite(magnitude) || float.IsNaN(seconds)) return;
+        magnitude = Mathf.Clamp(magnitude, 0f, MaxShakeMagnitude);
+        if (seconds <= 0f || magnitude <= 0f) return;
+        shakes.Add(new ShakeRequest { magnitude = magnitude, seconds = Mathf.Min(seconds, MaxShakeSeconds) });
+    }
+
+    // stops every shake at once restore state does this 
+    public void CancelShake()
+    {
+        shakes.Clear();
+        ShakeOffset = Vector2.zero;
+    }
+
+    // jumps straight to a pose adn cancles any framing ease == restore state or sum idk this code sucks
+    public void SetPose(Vector2 position, float orthoSize)
+    {
+        Position = position;
+        if (IsFinite(orthoSize) && orthoSize > 0f) OrthoSize = orthoSize;
+        easing = false;
+    }
+
+
+
 
     // Call once per frame with SCALED delta time, so pausing (timeScale 0) freezes the ease.
     // Returns the undistorted camera state for this frame.
@@ -111,7 +156,22 @@ public class CameraRig
             Position = Vector2.Lerp(Position, Target.position, k);
         }
 
+        TickShake(dt);
         return CameraState.Default(Position, OrthoSize);
+    }
+
+    private void TickShake(float dt)
+    {
+        float envelope = 0f;
+        for (int i = shakes.Count - 1; i >= 0; i--)
+        {
+            var s = shakes[i];
+            s.elapsed += dt;
+            if (s.elapsed >= s.seconds) { shakes.RemoveAt(i); continue; } // offset is  0 once t >= seconds 
+            shakes[i] = s;
+            envelope = Mathf.Max(envelope, s.Envelope);
+        }
+        ShakeOffset = envelope > 0f ? UnityEngine.Random.insideUnitCircle * envelope : Vector2.zero; // i have no clue what this does 
     }
 
     private static bool IsFinite(float f) => !float.IsNaN(f) && !float.IsInfinity(f);

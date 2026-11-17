@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
-public class GameCoordinator : MonoBehaviour, ISessionCoordinator
+public class GameCoordinator : MonoBehaviour
 {
     public static GameCoordinator Instance { get; private set; }
     private const string GameplayScene = "MVP";
+    private const string MenuScene = "Menu";
 
     //The coordinator owns the machine and its helpers (composition, per your class diagram)
     private readonly SessionMachine sessionMachine = new SessionMachine();
@@ -38,9 +39,9 @@ public class GameCoordinator : MonoBehaviour, ISessionCoordinator
     // ---------- Events ----------
 
     //Other features subscribe; fired later with e.g. OnLevelStarted?.Invoke();
-    public event Action<LevelConfig> OnLevelStarted;
-    public event Action<LevelResult> OnLevelEnded;
-    public event Action<RunStatistics> OnRunEnded;
+    public event Action OnLevelStarted;
+    public event Action OnLevelEnded;
+    public event Action OnRunEnded;
 
     // ---------- Unity lifecycle ----------
 
@@ -67,6 +68,9 @@ public class GameCoordinator : MonoBehaviour, ISessionCoordinator
     // Update is called once per frame
     private void Update()
     {
+        // Runs before the guard so the keys also work in Lost/Won
+        HandleDebugKeys();
+
         // 1. Only run while Playing (this is also what freezes everything while Paused)
         if (State != SessionState.Playing)
         {
@@ -75,6 +79,7 @@ public class GameCoordinator : MonoBehaviour, ISessionCoordinator
         // 2. Count the timer down by this frame's duration
         float deltaTime = Time.deltaTime;
         timer.Advance(deltaTime);
+        hud.SetTimer(timer.RemainingSeconds);
         // 3. Add the same duration to the run's elapsed time
         statistics.ElapsedTime += deltaTime;
         // 4. Read the player's current cell into a local variable
@@ -87,20 +92,18 @@ public class GameCoordinator : MonoBehaviour, ISessionCoordinator
             playerCell,
             timer.RemainingSeconds,
             puzzles.AllObjectivesComplete,
-            false
+            !player.IsAlive   
         );
         // 7. Ask each rule in order; the first verdict that isn't InProgress ends the level
         foreach (LevelRule rule in activeRules)
         {
             RuleVerdict verdict = rule.Evaluate(snapshot);
-            if(verdict != RuleVerdict.InProgress)
+            if (verdict != RuleVerdict.InProgress)
             {
                 EndLevel(verdict);
                 return;
             }
-        }
-        // 8. Tell the HUD how much time is left
-        hud.SetTimer(timer.RemainingSeconds);
+        }  
     }
 
     // Ends the level with the rules' verdict: change state, stop the level, tell listeners.
@@ -110,11 +113,15 @@ public class GameCoordinator : MonoBehaviour, ISessionCoordinator
         bool won = verdict == RuleVerdict.Win;
         // 2. Ask the session machine for that transition
         sessionMachine.TransitionTo(won ? SessionState.Won : SessionState.Lost);
+        if (!won)
+        {
+            statistics.Deaths++;
+        }
         // 3. Stop hazards and the player's input
         hazards.SetActive(false);
         player.EnableInput(false);
         // 4. Fire OnLevelEnded with the matching LevelResult
-        OnLevelEnded?.Invoke(won ? LevelResult.Won : LevelResult.Lost);
+        OnLevelEnded?.Invoke();
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -146,21 +153,124 @@ public class GameCoordinator : MonoBehaviour, ISessionCoordinator
         SceneManager.LoadScene(GameplayScene);
     }
 
-    //Stubs: filled in Week 2
+    // Reloads the current level. BeginLevel resets the timer, rules and features once the scene has loaded.
     public void RestartLevel()
     {
+        if (!sessionMachine.TransitionTo(SessionState.LevelLoading))
+        {
+            Debug.LogWarning($"RestartLevel: can't restart from {State}");
+            return;
+        }
+        hazards.SetActive(false);
+        player.EnableInput(false);
+        SceneManager.LoadScene(GameplayScene);
     }
 
     public void AdvanceLevel()
     {
+        //Check for errors / invalid indexes
+        if(State != SessionState.Won)
+        {
+            throw new InvalidOperationException("Cannot advance if state is not won.");
+        }
+        statistics.LevelsCleared++;
+
+        //Advancing the level
+        if(currentLevelIndex < catalogue.Count - 1)
+        {
+            currentLevelIndex++;
+            sessionMachine.TransitionTo(SessionState.LevelLoading);
+            hazards.SetActive(false);
+            player.EnableInput(false);
+            SceneManager.LoadScene(GameplayScene);
+            return;
+            
+        }
+        //If last level
+        sessionMachine.TransitionTo(SessionState.RunComplete);
+        hazards.SetActive(false);
+        player.EnableInput(false);
+        OnRunEnded?.Invoke();
+        Debug.Log($"Run complete: {statistics.LevelsCleared} levels cleared in {statistics.ElapsedTime:F1}s");
     }
 
     public void Pause(bool paused)
     {
+        if(paused)
+        {
+            if (!sessionMachine.TransitionTo(SessionState.Paused))
+            {
+                Debug.LogWarning($"Pause: can't pause from {State}");
+                return;
+            }
+            hazards.SetActive(false);
+            player.EnableInput(false);
+            view.SetPaused(true);
+            hud.ShowPause(paused);
+        } 
+        if(!paused)
+        {
+            if (!sessionMachine.TransitionTo(SessionState.Playing))
+            {
+                Debug.LogWarning($"Pause: can't resume from {State}");
+                return;
+            }
+            hazards.SetActive(true);
+            player.EnableInput(true);
+            view.SetPaused(false);
+            hud.ShowPause(paused);
+        }
     }
 
+    // Ends the run from any state except Boot and returns to the menu.
     public void AbortRun()
     {
+        if (State == SessionState.Boot || (!sessionMachine.TransitionTo(SessionState.Menu)))
+        {
+            Debug.LogWarning($"AbortRun: nothing to abort from {State}");
+            return;
+        }
+        hazards.SetActive(false);
+        player.EnableInput(false);
+        OnRunEnded?.Invoke();
+        SceneManager.LoadScene(MenuScene);
+    }
+
+    // TEMPORARY: keyboard shortcuts until TL3's death screen buttons exist (IHud.OnRetryPressed / OnQuitPressed)
+    private void HandleDebugKeys()
+    {
+        if (Keyboard.current == null)
+        {
+            return;
+        }
+        //All temporary to show features
+        if (Keyboard.current.rKey.wasPressedThisFrame)
+        {
+            RestartLevel();
+        }
+        if (Keyboard.current.mKey.wasPressedThisFrame)
+        {
+            AbortRun();
+        }
+        if (Keyboard.current.nKey.wasPressedThisFrame)
+        {
+            AdvanceLevel();
+        }
+        //pause is created by TL6
+        
+        if(Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            if(State == SessionState.Playing)
+            {
+                Pause(true);
+                return;
+            }
+            if(State == SessionState.Paused)
+            {
+                Pause(false);
+            }
+        }
+        
     }
 
     // ---------- Level setup ----------
@@ -171,6 +281,9 @@ public class GameCoordinator : MonoBehaviour, ISessionCoordinator
         FindFeatures();
 
         currentLevel = catalogue.Resolve(currentLevelIndex);
+        Debug.Log($"Level {currentLevelIndex +1} of {catalogue.Count} started: " +
+            $"{currentLevel.MazeWidth}x{currentLevel.MazeHeight} maze, " +
+            $"{currentLevel.TimeLimitSeconds}s, {currentLevel.PuzzlesRequired} cheese");
         timer.Reset(currentLevel.TimeLimitSeconds);
         BuildRules();
 
@@ -180,8 +293,14 @@ public class GameCoordinator : MonoBehaviour, ISessionCoordinator
         player.SpawnAt(maze.CellToWorld(maze.SpawnCell));
         player.EnableInput(true);
 
+        view.LoadSchedule(currentLevelIndex);
+        if(player is Component playerComponent)
+        {
+            view.BindFollowTarget(playerComponent.transform);
+        }
+
         sessionMachine.TransitionTo(SessionState.Playing);
-        OnLevelStarted?.Invoke(currentLevel);
+        OnLevelStarted?.Invoke();
     }
 
     // Cheese levels: lose rules first so a loss wins a same-frame tie, then the exit.
