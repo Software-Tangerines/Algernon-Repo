@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Algernon.Maze {
 
-public class MazeConfig : MonoBehaviour {
+public class MazeConfig {
     public int Seed;
     public int Width;
     public int Height;

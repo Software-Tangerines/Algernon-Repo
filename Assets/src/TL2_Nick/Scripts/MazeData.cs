@@ -8,8 +8,8 @@ using System.Collections.Generic;
 
 namespace Algernon.Maze {
 
-public class MazeData : MonoBehaviour {
-    public MazeConfig Config;
+public class MazeData {
+    //public MazeConfig Config;
     public int Width;
     public int Height;
 
@@ -22,19 +22,21 @@ public class MazeData : MonoBehaviour {
 
     // constructor
     public MazeData(MazeConfig config) {
-        Config = config;
-        Width = Config.Width;
-        Height = Config.Height;
+        //Config = config;
+        Width = config.Width;
+        Height = config.Height;
         Grid = new Cell[Width, Height];
 
         // cycles through the new 2d array, and makes a new cell with a x and y value for each
-        for (int x = 0; x < Config.Width; x++)
-            for (int y = 0; y < Config.Height; y++)
+        for (int x = 0; x < config.Width; x++)
+            for (int y = 0; y < config.Height; y++)
                 Grid[x, y] = new Cell(new Vector2Int(x, y));
     }
 
     // gets cells in grid by REFERENCE NOT VALUE
     public Cell cellAt(Vector2Int cell) {
+        // if (cell.x < 0 || cell.x >= Width || cell.y < 0  || cell.y >= Height)
+        //     throw new System.ArgumentOutOfRangeException(nameof(cell), cell, "Cell outside grid bounds.");
         return Grid[cell.x, cell.y];
     }
 
@@ -52,10 +54,14 @@ public class MazeData : MonoBehaviour {
     public static WallFlags dirBetween(Vector2Int from, Vector2Int to){
         // vector math
         Vector2Int dir = to - from;
-        if (dir == Vector2Int.up) return WallFlags.North;
-        if (dir == Vector2Int.down) return WallFlags.South;
-        if (dir == Vector2Int.right) return WallFlags.East;
-        if (dir == Vector2Int.left) return WallFlags.West;
+        if (dir == Vector2Int.up) 
+            return WallFlags.North;
+        if (dir == Vector2Int.down) 
+            return WallFlags.South;
+        if (dir == Vector2Int.right) 
+            return WallFlags.East;
+        if (dir == Vector2Int.left) 
+            return WallFlags.West;
         else 
             return WallFlags.North; // FIX LATER
     }
@@ -113,6 +119,7 @@ public class MazeData : MonoBehaviour {
     public List<Vector2Int> neighbors(Vector2Int cell){
         List<Vector2Int> neighbors = new List<Vector2Int>();
         Cell curr = cellAt(cell);
+        //Debug.Log("not here in neighbors");
         if ((curr.Walls & WallFlags.North) == 0)
             neighbors.Add(cell + Vector2Int.up);
         if ((curr.Walls & WallFlags.South) == 0)
@@ -150,6 +157,7 @@ public class MazeData : MonoBehaviour {
 
         return false;
     }
+
 }
 
 

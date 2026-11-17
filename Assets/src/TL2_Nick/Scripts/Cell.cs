@@ -18,7 +18,7 @@ public enum WallFlags {
     All = North | East | South | West
 }
 
-public class Cell : MonoBehaviour {
+public class Cell {
 
     // need to track, where it is, if its been visited, and where the walls are
     public Vector2Int Position;

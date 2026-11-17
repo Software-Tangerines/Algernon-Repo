@@ -17,7 +17,7 @@ namespace Algernon.Maze {
 // back up prev cell
 // check for neighbors again
 
-public class RBTalgo : MonoBehaviour {
+public class RBTalgo {
 
     public void Carve(MazeData grid, Random rng) {
 
@@ -56,10 +56,13 @@ public class RBTalgo : MonoBehaviour {
 
         // iterates through each possible neighbor of a cell (up/down/left/right)
         foreach (Vector2Int offset in new[] { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right }) {
+            
             Vector2Int candidate = cell + offset;
 
+
             // if not visited, add to list
-            if (!grid.cellAt(candidate).Visited)
+
+            if (candidate.x >= 0 && candidate.x < grid.Width && candidate.y >= 0 && candidate.y < grid.Height && !grid.cellAt(candidate).Visited)
                 result.Add(candidate);
         }
 
