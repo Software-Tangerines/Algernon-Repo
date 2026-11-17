@@ -13725,29 +13725,29 @@ MonoBehaviour:
   levelSchedules:
   - entries: []
   - entries:
-    - startTime: 60
+    - startTime: 10
       id: 3
       intensity: 0.3
-    - startTime: 90
+    - startTime: 15
       id: 3
       intensity: 0.6
-    - startTime: 100
+    - startTime: 16
       id: 1
       intensity: 0.125
   - entries:
-    - startTime: 30
+    - startTime: 10
       id: 1
       intensity: 0.125
-    - startTime: 60
+    - startTime: 15
       id: 3
       intensity: 0.6
-    - startTime: 100
+    - startTime: 20
       id: 3
       intensity: 0.9
-    - startTime: 135
+    - startTime: 25
       id: 4
       intensity: 1
-    - startTime: 138
+    - startTime: 30
       id: 4
       intensity: 0
   autoStartLevel: -1
