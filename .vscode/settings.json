@@ -68,5 +68,5 @@
         "*.slnx": "*.csproj"
     },
     "Algernon-Repo.slnx=======dotnet.defaultSolution": "AlgernonGIT.slnx>>>>>>>Stashedchanges",
-    "dotnet.defaultSolution": "AlgernonGIT.slnx"
+    "dotnet.defaultSolution": "Algernon-Repo.slnx"
 }

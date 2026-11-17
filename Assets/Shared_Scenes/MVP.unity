@@ -13384,6 +13384,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1829090107210581046, guid: ad78a9054b6f8614f9efff9f8d2b8409, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1759146062}
+    - targetCorrespondingSourceObject: {fileID: 2801463856631584454, guid: ad78a9054b6f8614f9efff9f8d2b8409, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1594941824}
   m_SourcePrefab: {fileID: 100100000, guid: ad78a9054b6f8614f9efff9f8d2b8409, type: 3}
 --- !u!1 &652414940
 GameObject:
@@ -13700,6 +13703,60 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1025848860}
   m_CullTransparentMesh: 1
+--- !u!1 &1594941822 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2801463856631584454, guid: ad78a9054b6f8614f9efff9f8d2b8409, type: 3}
+  m_PrefabInstance: {fileID: 573584498}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1594941824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1594941822}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ba40bfe21f514e3cb36e921bf1415d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ViewDirector
+  rampSeconds: 1
+  fixedZoom: 0
+  levelSchedules:
+  - entries: []
+  - entries:
+    - startTime: 60
+      id: 3
+      intensity: 0.3
+    - startTime: 90
+      id: 3
+      intensity: 0.6
+    - startTime: 100
+      id: 1
+      intensity: 0.125
+  - entries:
+    - startTime: 30
+      id: 1
+      intensity: 0.125
+    - startTime: 60
+      id: 3
+      intensity: 0.6
+    - startTime: 100
+      id: 3
+      intensity: 0.9
+    - startTime: 135
+      id: 4
+      intensity: 1
+    - startTime: 138
+      id: 4
+      intensity: 0
+  autoStartLevel: -1
+  visionRadius: 3
+  fogSortingLayer: 
+  fogSortingOrder: 100
+  minimapDistorted: 1
+  showMinimapDebug: 0
+  desaturateShader: {fileID: 4800000, guid: cdb5c3e907a484ca28dd14d82eb35409, type: 3}
 --- !u!1 &1628465219
 GameObject:
   m_ObjectHideFlags: 0

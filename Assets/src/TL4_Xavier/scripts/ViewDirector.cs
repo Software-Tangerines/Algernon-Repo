@@ -24,6 +24,7 @@ Public calls for other features (all safe: bad input is logged, never thrown):
   SetVisionRadius(float cells)         how far around the mouse the fog lifts (clamped to [0, 50])
   RevealAll(bool)                      F1: true on the win screen hides the fog; false brings it back
   Shake(float magnitude, float secs)   screen shake (render offset only; the logical camera doesn't move)
+  SetPaused(bool)                      F1: true freezes the schedule clock, ramps and follow; false resumes
   CaptureState() / RestoreState(snap)  F1: Memento for pause / restart
   Minimap                              256 x 256 texture of the explored cells, for the HUD
 
@@ -52,7 +53,7 @@ public class ViewDirector : MonoBehaviour, IViewDirector
     public List<LevelSchedule> levelSchedules = new List<LevelSchedule>();
 
     [Tooltip("MVP only: load this level's schedule on Start so you can watch it play. -1 = don't auto-load (use this once F1 calls LoadSchedule).")]
-    public int autoStartLevel = 0;
+    public int autoStartLevel = -1;
 
     [Header("Fog of war")]
     [Tooltip("Cells around the mouse that get revealed (Euclidean distance). Clamped to [0,50]")]
@@ -88,6 +89,7 @@ public class ViewDirector : MonoBehaviour, IViewDirector
     private ViewEffectPipeline pipeline;
     private DistortionScheduler scheduler;
     private bool wasBlackedOut;
+    private bool paused;                   // set by SetPaused; true = time stands still for F5
     private int currentLevelIndex = -1;    // last LoadSchedule index, stored in snapshots
 
     // fog + minimap(created by FrameMaze, sized to maze)
@@ -241,6 +243,12 @@ public class ViewDirector : MonoBehaviour, IViewDirector
     // Random render offset, at most `magnitude` units, fading to 0 over `seconds`.
     public void Shake(float magnitude, float seconds) => rig.Shake(magnitude, seconds);
 
+    // ---------- Pause ----------
+
+    // F1 calls this from Pause(). While paused, LateUpdate passes 0 seconds to the rig and the
+    // scheduler, so the schedule clock, the ramps and the follow all stay exactly where they are.
+    public void SetPaused(bool value) => paused = value;
+
     // ---------- Snapshot (Memento) ----------
 
     // Everything F5 needs to put the view back exactly: pose, active effects, schedule clock, fog.
@@ -292,8 +300,9 @@ public class ViewDirector : MonoBehaviour, IViewDirector
     {
         scheduler.RampSeconds = rampSeconds;
 
-        // Scaled time: when the game pauses (timeScale 0) follow, ease and ramps all freeze.
-        float dt = Time.deltaTime;
+        // dt = 0 freezes follow, ease and ramps. That happens when F1 called SetPaused(true),
+        // and also if anyone sets Time.timeScale to 0 (deltaTime is scaled time).
+        float dt = paused ? 0f : Time.deltaTime;
         var baseState = rig.Tick(dt);
         RevealAroundTarget();
         scheduler.Tick(dt);
