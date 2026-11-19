@@ -78,7 +78,7 @@ public class MazeData {
     // BFS WITH EXTRA STEPS
     public static Vector2Int furthestCell(MazeData maze, Vector2Int from) {
 
-            // dictionary for cell: distance
+            // dictionary for cell and dist
             Dictionary<Vector2Int, int> visited = new Dictionary<Vector2Int, int>();
             visited.Add(from, 0);
 
@@ -134,7 +134,7 @@ public class MazeData {
     // DETERMINES IF PATH BETWEEN 2 CELLS, LITERALLY JUST BFS
     public static bool solvable(MazeData maze, Vector2Int from, Vector2Int to) {
 
-        // hashset allows no duplicates
+        // hashset allows no dupes
         HashSet<Vector2Int> visited = new HashSet<Vector2Int>();
         visited.Add(from);
         Queue<Vector2Int> queue = new Queue<Vector2Int>();
@@ -157,6 +157,7 @@ public class MazeData {
 
         return false;
     }
+
 
 }
 

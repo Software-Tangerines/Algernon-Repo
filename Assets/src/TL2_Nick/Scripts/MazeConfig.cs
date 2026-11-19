@@ -9,13 +9,13 @@ public class MazeConfig {
     public int Seed;
     public int Width;
     public int Height;
-    //public int Difficulty; IMPLMEMENET LATER
+    public int Diff;
 
-    public MazeConfig(int seed, int width, int height/*, int difficulty*/) {
+    public MazeConfig(int seed, int width, int height, int diff) {
         Seed = seed;
         Width = width;
         Height = height;
-        //Difficulty = difficulty;
+        Diff = diff;
     }
 }
 
