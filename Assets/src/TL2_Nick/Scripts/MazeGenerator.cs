@@ -23,7 +23,7 @@ public class MazeGenerator {
         if (config.Diff == 1)
             algo = new RBTalgo();
         else if (config.Diff == 2)
-            algo = new RBTalgo();
+            algo = new PrimsAlgo();
         else
             algo = new RBTalgo();
 

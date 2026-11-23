@@ -291,7 +291,7 @@ GameObject:
   - component: {fileID: 689319406}
   - component: {fileID: 689319407}
   m_Layer: 0
-  m_Name: Maze
+  m_Name: starter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -326,7 +326,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MazeBootstrap
   tilemap: {fileID: 1655790046}
   sprites:
-  - {fileID: 0}
+  - {fileID: -928267378, guid: 93335e6d5c4ad4a12ab1014e4e73a714, type: 3}
   - {fileID: 204173587, guid: 93335e6d5c4ad4a12ab1014e4e73a714, type: 3}
   - {fileID: -491841515, guid: 93335e6d5c4ad4a12ab1014e4e73a714, type: 3}
   - {fileID: -4262717080225287769, guid: 93335e6d5c4ad4a12ab1014e4e73a714, type: 3}
@@ -398,7 +398,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6259075951687151395, guid: 39b1d694017d44d5d87356f2244437c2, type: 3}
       propertyPath: m_Name
-      value: MVPmaze (1)
+      value: Maze
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
