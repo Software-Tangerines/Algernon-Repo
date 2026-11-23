@@ -17,23 +17,24 @@ namespace Algernon.Maze {
 // back up prev cell
 // check for neighbors again
 
-public class RBTalgo {
+// inherit from algoselect so we can override methods for right algo
+public class RBTalgo : AlgoSelect {
 
-    public void Carve(MazeData grid, Random rng) {
+    public override void Carve(MazeData maze, Random rng) {
 
         // stack will act as where we are
         Stack<Vector2Int> stack = new Stack<Vector2Int>();
 
         // pick starting cell, mark it as visited
         Vector2Int start = new Vector2Int(0, 0);
-        grid.cellAt(start).Visited = true;
+        maze.cellAt(start).Visited = true;
         stack.Push(start);
 
         while (stack.Count > 0) {
             Vector2Int current = stack.Peek();
 
             // look at unvisited neighbors
-            List<Vector2Int> unvisitedNeighbours = getUnvisited(grid, current);
+            List<Vector2Int> unvisitedNeighbours = getUnvisited(maze, current);
 
             // if no neighbors, back up prev cell and repeat
             if (unvisitedNeighbours.Count == 0) {
@@ -43,14 +44,14 @@ public class RBTalgo {
 
             // if unvisited neighbors, pick one at random, remove walls, and move into
             Vector2Int next = unvisitedNeighbours[rng.Next(unvisitedNeighbours.Count)];
-            grid.removeWall(current, next);
+            maze.removeWall(current, next);
 
-            grid.cellAt(next).Visited = true;
+            maze.cellAt(next).Visited = true;
             stack.Push(next);
         }
     }
 
-    protected static List<Vector2Int> getUnvisited(MazeData grid, Vector2Int cell) {
+    protected static List<Vector2Int> getUnvisited(MazeData maze, Vector2Int cell) {
         // make list for unvisited neighbors
         List<Vector2Int> result = new List<Vector2Int>(4);
 
@@ -62,7 +63,7 @@ public class RBTalgo {
 
             // if not visited, add to list
 
-            if (candidate.x >= 0 && candidate.x < grid.Width && candidate.y >= 0 && candidate.y < grid.Height && !grid.cellAt(candidate).Visited)
+            if (candidate.x >= 0 && candidate.x < maze.Width && candidate.y >= 0 && candidate.y < maze.Height && !maze.cellAt(candidate).Visited)
                 result.Add(candidate);
         }
 

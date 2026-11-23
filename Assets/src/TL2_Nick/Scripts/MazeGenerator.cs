@@ -10,21 +10,30 @@ namespace Algernon.Maze {
 public class MazeGenerator {
 
     public MazeData Generate(MazeConfig config, Tilemap tilemap, Sprite[] sprites, int reserveCount, int reserveSpacing) {
-        System.Random rng = new System.Random(config.Seed);
+        System.Random seed = new System.Random(config.Seed);
         MazeData maze = new MazeData(config);
 
         ReservedCoords rc = new ReservedCoords(maze, config.Seed);
         List<Vector2Int> reserved;
 
         // hardcoding rbt rn cause i can't be bothered
-        RBTalgo algo = new RBTalgo();
+        // RBTalgo algo = new RBTalgo();
+        AlgoSelect algo;
+
+        if (config.Diff == 1)
+            algo = new RBTalgo();
+        else if (config.Diff == 2)
+            algo = new RBTalgo();
+        else
+            algo = new RBTalgo();
 
         // carve
-        algo.Carve(maze, rng);
+        algo.Carve(maze, seed);
         // post process only matters when braided algo goes, IMPLEMENT LATER
+        algo.PostProcess(maze, seed);
 
         // place spawn and exit
-        MazeData.placeSpawnExit(maze, rng);
+        MazeData.placeSpawnExit(maze, seed);
 
         // solvability
         if (MazeData.solvable(maze, maze.spawnCell, maze.exitCell))
