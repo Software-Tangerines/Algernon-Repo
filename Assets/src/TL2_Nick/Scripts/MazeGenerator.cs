@@ -20,12 +20,15 @@ public class MazeGenerator {
         // RBTalgo algo = new RBTalgo();
         AlgoSelect algo;
 
+        // braided and prims algo could be swtiched diffiuclty wise, its debatable
         if (config.Diff == 1)
-            algo = new RBTalgo();
+            algo = new BraidedAlgo();
         else if (config.Diff == 2)
             algo = new PrimsAlgo();
-        else
+        else if (config.Diff == 3)
             algo = new RBTalgo();
+        else
+            throw new Exception("Difficulty from 1-3, ints only");
 
         // carve
         algo.Carve(maze, seed);

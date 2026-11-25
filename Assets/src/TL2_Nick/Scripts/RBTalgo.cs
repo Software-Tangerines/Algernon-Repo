@@ -13,9 +13,9 @@ namespace Algernon.Maze {
 // pick one at random
 // remove wall from between
 // move into new cell
-// IF NO NEIGHBORS
+// IF NO (unvisited) NEIGHBORS
 // back up prev cell
-// check for neighbors again
+// check for (unvisited) neighbors again
 
 // inherit from algoselect so we can override methods for right algo
 public class RBTalgo : AlgoSelect {
@@ -51,7 +51,7 @@ public class RBTalgo : AlgoSelect {
         }
     }
 
-    protected static List<Vector2Int> getUnvisited(MazeData maze, Vector2Int cell) {
+    private static List<Vector2Int> getUnvisited(MazeData maze, Vector2Int cell) {
         // make list for unvisited neighbors
         List<Vector2Int> result = new List<Vector2Int>(4);
 

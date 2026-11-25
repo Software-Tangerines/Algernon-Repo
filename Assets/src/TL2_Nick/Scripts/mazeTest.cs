@@ -19,9 +19,5 @@ public class mazeTest : MonoBehaviour {
     void Start() {
         MazeConfig config = new MazeConfig(seed, width, height, difficulty);
         MazeData maze = generator.Generate(config, tilemap, sprites, reserveCount, reserveSpacing);
-
-        // can access the vector2int reserved list by generator.reserved
-        // can access spawn/exit cells by maze.spawnCell and maze.exitCell
-        // these vectors are (x coord, y coord) for the maze grid
     }
 }

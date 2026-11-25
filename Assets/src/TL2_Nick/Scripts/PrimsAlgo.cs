@@ -1,6 +1,9 @@
 // AI FUNCTION
 // used chatgpt, gave it my RBTalgo file and asked to make it same structure, but instead of rbt, use prims algrithm
 
+// expands from a starting cell, adjacent cells to generated ones, is called "frontier"
+// expands from there like roots
+// pick random frontier, cell there, repeat until no frontier left
 
 using System;
 using System.Collections.Generic;
